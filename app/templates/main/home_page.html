@@ -1,0 +1,48 @@
+{% extends "main/main_base.html" %}  {# main/main_base.html extends layout.html #}
+
+{% block content %}
+    <h2>{%trans%}Home page{%endtrans%}</h2>
+    	
+	<select name="core" id="cores"></select>
+	<br>
+	<input type="text" name="search" id="autocomplete" size=100/>
+
+	<div id="cy" style="display:none;width:1200px;height:800px"></div>
+
+	<section id="popular">
+		<div style="width:400px;float:left;">
+			<h3>Noun phrases</h3>
+			<ul id="concepts"></ul>
+		</div> 
+
+		<div style="width:400px;float:left;">
+			<h3>Verb Phrases</h3>
+			<ul id="predicates"></ul>
+		</div>
+	</section>
+
+
+{% endblock %}
+
+
+{% block post_content %}
+	<hr style="margin-top:200px">
+	<p><a href={{ url_for('user.register') }}>{%trans%}Register{%endtrans%}</a></p>
+	<p><a href={{ url_for('user.login') }}>{%trans%}Sign in{%endtrans%}</a></p>
+	<p><a href={{ url_for('main.home_page') }}>{%trans%}Home Page{%endtrans%}</a> (accessible to anyone)</p>
+	<p><a href={{ url_for('main.member_page') }}>{%trans%}Member Page{%endtrans%}</a> (login_required: member@example.com / Password1)</p>
+	<p><a href={{ url_for('main.admin_page') }}>{%trans%}Admin Page{%endtrans%}</a> (roles_required: admin@example.com / Password1)</p>
+	<p><a href={{ url_for('user.logout') }}>{%trans%}Sign out{%endtrans%}</a></p>
+	
+{% endblock %}
+
+{% block scripts %}
+	<!-- Autocomplete -->
+	<script src="{{ url_for('static', filename='javascript/autocomplete/jquery.autocomplete.min.js') }}"></script>
+
+	<!-- Cytoscape -->
+	<script src="{{ url_for('static', filename='javascript/node_modules/cytoscape/dist/cytoscape.min.js') }}"></script>
+
+	<!-- HELLO-NLP -->
+	<script src="{{ url_for('static', filename='javascript/hello-nlp.js') }}"></script>
+{% endblock %}
