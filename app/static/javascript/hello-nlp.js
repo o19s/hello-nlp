@@ -1,6 +1,7 @@
 $(document).ready(function(){
 
-	element = $("#cy");
+	var graphelement = $("#cy");
+	var searchelement = $("#search");
 	var explorer;
 
 	function Graph(container) {
@@ -22,7 +23,8 @@ $(document).ready(function(){
 				{
 					selector: 'edge',
 					style: {
-						'width': 3,
+						'width': 'data(weight)',
+						'font-size': 'data(weight*5+12)',
 						'line-color': '#ccc',
 						'target-arrow-color': '#ccc',
 						'target-arrow-shape': 'triangle',
@@ -105,20 +107,31 @@ $(document).ready(function(){
 		}
 	};
 
+	Graph.prototype.clear = function(){
+		this.cy.$("*").remove();
+	};
+
 	Graph.prototype.explore = function (subject,weight) {
 		var self = this;
 		var cy = self.cy;
-		$.get("/graph?subject="+subject+"&objects=5&branches=5",function(res,status,all){
+		$.get("/graph?subject="+subject+"&objects=10&branches=10",function(res,status,all){
 			if(status=="success") {
-				element.show();
 				cy.$("*").remove();
 				self.addNode(subject,weight,600,400);
 				for(var i=0;i<res[0].relationships.length;i++) {
 					var predicate = res[0].relationships[i];
 					for(var j=0;j<predicate.relationships.length;j++) {
 						var object = predicate.relationships[j];
+						var strength = Math.log(predicate.weight + object.weight)
+
 						self.addNode(object.label,object.weight,i,j)
-						self.addEdge(subject+'::'+predicate.label+'::'+object.label,predicate.weight,predicate.label,subject,object.label)
+						self.addEdge(
+							subject+'::'+predicate.label+'::'+object.label,
+							strength,
+							predicate.label,
+							subject,
+							object.label
+						)
 					}
 				}
 				
@@ -191,8 +204,10 @@ $(document).ready(function(){
 		//Change the core for querying
 		$.post('/cores/'+core,function(res,status) {
 			if (status=="success") {
-				element.hide();
+				//element.hide();
 				console.log('Core changed to',core)
+				searchelement.val('');
+				explorer.clear();
 				summarizeCore(core)
 			}
 			
@@ -218,7 +233,7 @@ $(document).ready(function(){
 
 	// ------------------------------------------------
 
-	$('#autocomplete').autocomplete({
+	searchelement.autocomplete({
 	    serviceUrl: '/suggest',
 	    transformResult: function(response) {
 	    	response = JSON.parse(response)
@@ -234,6 +249,6 @@ $(document).ready(function(){
 	    }
 	});
 
-	explorer = new Graph(element);
+	explorer = new Graph(graphelement);
 
 });

@@ -30,7 +30,7 @@ class ConfigClass(object):
     MAIL_USE_TLS = False
     MAIL_USERNAME = 'email@example.com'
     MAIL_PASSWORD = 'password'
-    MAIL_DEFAULT_SENDER = '"MyApp" <noreply@example.com>'
+    MAIL_DEFAULT_SENDER = '"Hello-NLP" <noreply@example.com>'
 
     # Flask-User settings
     USER_APP_NAME = "Hello-NLP"      # Shown in and email templates and page footers
