@@ -2,7 +2,8 @@
 #
 # Authors: Ling Thio <ling.thio@gmail.com>
 
-from skipchunk.sq import SkipchunkQuery
+from skipchunk.graphquery import GraphQuery
+from skipchunk.indexquery import IndexQuery
 
 from flask import Blueprint, redirect, render_template
 from flask import request, url_for, jsonify
@@ -11,8 +12,8 @@ from flask_user import current_user, login_required, roles_required
 from app import db
 from app.models.user_models import UserProfileForm
 
-
-q = SkipchunkQuery('http://localhost:8983/solr/','bii-connectivity-and-tech')
+gq = GraphQuery('http://localhost:8983/solr/','osc-blog')
+iq = IndexQuery('http://localhost:8983/solr/','osc-blog')
 
 main_blueprint = Blueprint('main', __name__, template_folder='templates')
 
@@ -25,26 +26,34 @@ def home_page():
 @main_blueprint.route('/suggest')
 def suggest():
     prefix = request.args["query"]
-    suggestions = q.suggestConcepts(prefix)
+    suggestions = gq.suggestConcepts(prefix)
     return jsonify({'suggestions':suggestions})
 
 # Cores is our AJAX call for core lists
 @main_blueprint.route('/cores')
 def cores():
-    cores = q.cores()
+    cores = gq.cores()
     return jsonify({'cores':cores})
 
 @main_blueprint.route('/cores/<name>',methods=['POST'])
 def core_change(name):
-    success = q.changeCore(name)
+    success = gq.changeCore(name)
     if success:
         return jsonify({'message':'Core changed to'+name}), 200
     return jsonify({'message':'Core'+name+'not found'}), 404
 
 @main_blueprint.route('/cores/<name>',methods=['GET'])
 def core(name):
-    concepts,predicates = q.summarize()
+    concepts,predicates = gq.summarize()
     return jsonify({'concepts':concepts,'predicates':predicates}), 200
+
+@main_blueprint.route('/search',methods=['GET'])
+def search():
+    query = str(request.query_string)
+    query = query[2:len(query)-1]
+    results = iq.search(query)
+    return results,200
+    #return jsonify(results), 200
 
 @main_blueprint.route('/graph',methods=['GET'])
 def graph():
@@ -57,17 +66,17 @@ def graph():
         branches = int(request.args["branches"])
     else:
         branches = 10
-    tree = q.graph(subject,objects=objects,branches=branches)
+    tree = gq.graph(subject,objects=objects,branches=branches)
     return jsonify(tree), 200
 
 @main_blueprint.route('/explore2',methods=['GET'])
 def explore2():
     prefix = request.args["query"]
-    tree = q.explore(prefix,quiet=True)
+    tree = gq.explore(prefix,quiet=True)
     concept = list(tree.keys())[0]
     verb = tree[concept][0]["label"]
 
-    return jsonify(q.conceptVerbConcepts(concept,verb)), 200
+    return jsonify(gq.conceptVerbConcepts(concept,verb)), 200
 
 
 # The User page is accessible to authenticated users (users that have logged in)
