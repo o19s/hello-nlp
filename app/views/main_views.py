@@ -4,6 +4,7 @@
 
 from skipchunk.graphquery import GraphQuery
 from skipchunk.indexquery import IndexQuery
+from skipchunk.enrichquery import EnrichQuery
 
 from flask import Blueprint, redirect, render_template
 from flask import request, url_for, jsonify
@@ -12,8 +13,9 @@ from flask_user import current_user, login_required, roles_required
 from app import db
 from app.models.user_models import UserProfileForm
 
+eq = EnrichQuery(model='en_core_web_lg')
 gq = GraphQuery('http://localhost:8983/solr/','osc-blog')
-iq = IndexQuery('http://localhost:8983/solr/','osc-blog')
+iq = IndexQuery('http://localhost:8983/solr/','osc-blog',eq)
 
 main_blueprint = Blueprint('main', __name__, template_folder='templates')
 
@@ -49,9 +51,15 @@ def core(name):
 
 @main_blueprint.route('/search',methods=['GET'])
 def search():
+    query = request.args.to_dict()
+    results,status = iq.search(query)
+    return results,status
+
+@main_blueprint.route('/search2',methods=['GET'])
+def search2():
     query = str(request.query_string)
     query = query[2:len(query)-1]
-    results = iq.search(query)
+    results = iq.search2(query)
     return results,200
     #return jsonify(results), 200
 
