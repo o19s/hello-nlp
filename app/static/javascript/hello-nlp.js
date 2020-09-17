@@ -4,7 +4,7 @@ $(document).ready(function(){
 	var searchelement = $("#search");
 	var explorer;
 
-	var core = null;
+	var index = null;
 
 	function Graph(container) {
 
@@ -116,7 +116,7 @@ $(document).ready(function(){
 	Graph.prototype.explore = function (subject,weight) {
 		var self = this;
 		var cy = self.cy;
-		$.get("/graph?subject="+subject+"&objects=10&branches=10",function(res,status,all){
+		$.get("/graph/"+index+"?subject="+subject+"&objects=10&branches=10",function(res,status,all){
 			if(status=="success") {
 				cy.$("*").remove();
 				self.addNode(subject,weight,600,400);
@@ -167,10 +167,10 @@ $(document).ready(function(){
 
 	// ------------------------------------------------
 
-	function summarizeCore() {
+	function summarize() {
 
 		//Get the summary info
-		$.get('/indexes/'+core,function(res,status) {
+		$.get('/indexes/'+index,function(res,status) {
 			if (status=="success") {
 				c = $('#concepts')
 				p = $('#predicates')
@@ -197,41 +197,41 @@ $(document).ready(function(){
 
 	}
 
-	function swapCore() {
-		option = $("#cores option:selected").first();
+	function swapIndex() {
+		option = $("#indexes option:selected").first();
 		if(!option) {
-			option = $("#cores option").first();
+			option = $("#indexes option").first();
 		}
-		core = encodeURI(option.val());
+		index = encodeURI(option.val());
 
-		console.log('Core changed to',core);
+		console.log('Index changed to',index);
 
 		searchelement.val('');
 		explorer.clear();
-		summarizeCore(core)
+		summarize(index)
 
 	}
 
 	// ------------------------------------------------
 
 	$.get('/indexes',function(res,status) {
-		select = $("#cores");
+		select = $("#indexes");
 		if (status=="success") {
 			for(var i=0;i<res.indexes.length;i++) {
-				corename = res.indexes[i]
-				option = $("<option value=\""+corename+"\">"+corename+"</option>");
+				indexname = res.indexes[i]
+				option = $("<option value=\""+indexname+"\">"+indexname+"</option>");
 				option.click()
 				select.append(option)
 			}
 		}
-		select.on("change",swapCore)
-		swapCore();
+		select.on("change",swapIndex)
+		swapIndex();
 	});
 
 	// ------------------------------------------------
 
 	searchelement.autocomplete({
-	    serviceUrl: '/suggest',
+	    serviceUrl: '/suggest/'+index,
 	    transformResult: function(response) {
 	    	response = JSON.parse(response)
 		    return {

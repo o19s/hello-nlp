@@ -17,9 +17,9 @@ from app.models.user_models import UserProfileForm
 
 from ..local_settings import ENGINE_CONFIG
 
-gq = GraphQuery(ENGINE_CONFIG)
 eq = EnrichQuery(model='en_core_web_lg')
 iq = IndexQuery(ENGINE_CONFIG,enrich_query=eq)
+gq = GraphQuery(ENGINE_CONFIG)
 
 graph_connections = {}
 index_connections = {}
@@ -35,7 +35,7 @@ def index_connect(name):
     if name not in index_connections.keys():
         index_config = ENGINE_CONFIG.copy()
         index_config["name"] = name
-        index_connections[name] = IndexQuery(index_config,eq)
+        index_connections[name] = IndexQuery(index_config,enrich_query=eq)
     return index_connections[name]
 
 main_blueprint = Blueprint('main', __name__, template_folder='templates')
@@ -46,8 +46,8 @@ def home_page():
     return render_template('main/home_page.html')
 
 # Suggest is our AJAX call for typeahead
-@main_blueprint.route('/suggest')
-def suggest():
+@main_blueprint.route('/suggest/<name>')
+def suggest(name):
     prefix = request.args["query"]
     suggestions = gq.suggestConcepts(prefix)
     return jsonify({'suggestions':suggestions})
@@ -61,18 +61,19 @@ def indexes():
 @main_blueprint.route('/indexes/<name>',methods=['GET'])
 def index_summarize(name):
     gq = graph_connect(name)
-    iq = index_connect(name)
     concepts,predicates = gq.summarize()
     return jsonify({'concepts':concepts,'predicates':predicates}), 200
 
-@main_blueprint.route('/search',methods=['GET'])
+@main_blueprint.route('/search/<name>',methods=['GET'])
 def search(name):
+    iq = index_connect(name)
     query = request.args.copy()
     results,status = iq.search(query)
     return results,status
 
-@main_blueprint.route('/graph',methods=['GET'])
-def graph():
+@main_blueprint.route('/graph/<name>',methods=['GET'])
+def graph(name):
+    gq = graph_connect(name)
     subject = request.args["subject"]
     if "objects" in request.args.keys():
         objects = int(request.args["objects"])
@@ -85,8 +86,9 @@ def graph():
     tree = gq.graph(subject,objects=objects,branches=branches)
     return jsonify(tree), 200
 
-@main_blueprint.route('/explore2',methods=['GET'])
-def explore2():
+@main_blueprint.route('/explore/<name>',methods=['GET'])
+def explore(name):
+    gq = graph_connect(name)
     prefix = request.args["query"]
     tree = gq.explore(prefix,quiet=True)
     concept = list(tree.keys())[0]
