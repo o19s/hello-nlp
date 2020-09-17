@@ -1,6 +1,8 @@
-# Copyright 2014 SolidBuilds.com. All rights reserved
-#
+# Original work: Copyright 2014 SolidBuilds.com. All rights reserved
 # Authors: Ling Thio <ling.thio@gmail.com>
+
+# Modified work: Copyright 2020 OpenSourceConnections.com.  All rights reserved
+# Authors: Max Irwin <mirwin@opensourceconnections.com>
 
 from skipchunk.graphquery import GraphQuery
 from skipchunk.indexquery import IndexQuery
@@ -13,9 +15,28 @@ from flask_user import current_user, login_required, roles_required
 from app import db
 from app.models.user_models import UserProfileForm
 
+from ..local_settings import ENGINE_CONFIG
+
+gq = GraphQuery(ENGINE_CONFIG)
 eq = EnrichQuery(model='en_core_web_lg')
-gq = GraphQuery('http://localhost:8983/solr/','osc-blog')
-iq = IndexQuery('http://localhost:8983/solr/','osc-blog',eq)
+iq = IndexQuery(ENGINE_CONFIG,enrich_query=eq)
+
+graph_connections = {}
+index_connections = {}
+
+def graph_connect(name):
+    if name not in graph_connections.keys():
+        graph_config = ENGINE_CONFIG.copy()
+        graph_config["name"] = name
+        graph_connections[name] = GraphQuery(graph_config)
+    return graph_connections[name]
+
+def index_connect(name):
+    if name not in index_connections.keys():
+        index_config = ENGINE_CONFIG.copy()
+        index_config["name"] = name
+        index_connections[name] = IndexQuery(index_config,eq)
+    return index_connections[name]
 
 main_blueprint = Blueprint('main', __name__, template_folder='templates')
 
@@ -32,36 +53,23 @@ def suggest():
     return jsonify({'suggestions':suggestions})
 
 # Cores is our AJAX call for core lists
-@main_blueprint.route('/cores')
-def cores():
-    cores = gq.cores()
-    return jsonify({'cores':cores})
+@main_blueprint.route('/indexes')
+def indexes():
+    indexes = gq.indexes()
+    return jsonify({'indexes':indexes})
 
-@main_blueprint.route('/cores/<name>',methods=['POST'])
-def core_change(name):
-    success = gq.changeCore(name)
-    if success:
-        return jsonify({'message':'Core changed to'+name}), 200
-    return jsonify({'message':'Core'+name+'not found'}), 404
-
-@main_blueprint.route('/cores/<name>',methods=['GET'])
-def core(name):
+@main_blueprint.route('/indexes/<name>',methods=['GET'])
+def index_summarize(name):
+    gq = graph_connect(name)
+    iq = index_connect(name)
     concepts,predicates = gq.summarize()
     return jsonify({'concepts':concepts,'predicates':predicates}), 200
 
 @main_blueprint.route('/search',methods=['GET'])
-def search():
-    query = request.args.to_dict()
+def search(name):
+    query = request.args.copy()
     results,status = iq.search(query)
     return results,status
-
-@main_blueprint.route('/search2',methods=['GET'])
-def search2():
-    query = str(request.query_string)
-    query = query[2:len(query)-1]
-    results = iq.search2(query)
-    return results,200
-    #return jsonify(results), 200
 
 @main_blueprint.route('/graph',methods=['GET'])
 def graph():
@@ -119,7 +127,4 @@ def user_profile_page():
         return redirect(url_for('main.home_page'))
 
     # Process GET or invalid POST
-    return render_template('main/user_profile_page.html',
-                           form=form)
-
-
+    return render_template('main/user_profile_page.html', form=form)

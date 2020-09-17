@@ -4,6 +4,8 @@ $(document).ready(function(){
 	var searchelement = $("#search");
 	var explorer;
 
+	var core = null;
+
 	function Graph(container) {
 
 		this.cy = cytoscape({
@@ -165,10 +167,10 @@ $(document).ready(function(){
 
 	// ------------------------------------------------
 
-	function summarizeCore(core) {
+	function summarizeCore() {
 
 		//Get the summary info
-		$.get('/cores/'+core,function(res,status) {
+		$.get('/indexes/'+core,function(res,status) {
 			if (status=="success") {
 				c = $('#concepts')
 				p = $('#predicates')
@@ -201,28 +203,23 @@ $(document).ready(function(){
 			option = $("#cores option").first();
 		}
 		core = encodeURI(option.val());
-		//Change the core for querying
-		$.post('/cores/'+core,function(res,status) {
-			if (status=="success") {
-				//element.hide();
-				console.log('Core changed to',core)
-				searchelement.val('');
-				explorer.clear();
-				summarizeCore(core)
-			}
-			
-		})
+
+		console.log('Core changed to',core);
+
+		searchelement.val('');
+		explorer.clear();
+		summarizeCore(core)
 
 	}
 
 	// ------------------------------------------------
 
-	$.get('/cores',function(res,status) {
+	$.get('/indexes',function(res,status) {
 		select = $("#cores");
 		if (status=="success") {
-			for(var i=0;i<res.cores.length;i++) {
-				core = res.cores[i]
-				option = $("<option value=\""+core+"\">"+core+"</option>");
+			for(var i=0;i<res.indexes.length;i++) {
+				corename = res.indexes[i]
+				option = $("<option value=\""+corename+"\">"+corename+"</option>");
 				option.click()
 				select.append(option)
 			}
