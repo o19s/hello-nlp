@@ -210,6 +210,21 @@ $(document).ready(function(){
 		explorer.clear();
 		summarize(index)
 
+		searchelement.autocomplete({
+		    serviceUrl: '/suggest/'+index,
+		    transformResult: function(response) {
+		    	response = JSON.parse(response)
+			    return {
+			        "suggestions": $.map(response.suggestions, function(dataItem) {
+			            return { "value": dataItem.term, "data": dataItem.weight };
+			        })
+			    };
+			},
+		    onSelect: function (suggestion) {
+		        explorer.explore(suggestion.value,suggestion.data);
+		    }
+		});
+
 	}
 
 	// ------------------------------------------------
@@ -230,21 +245,6 @@ $(document).ready(function(){
 
 	// ------------------------------------------------
 
-	searchelement.autocomplete({
-	    serviceUrl: '/suggest/'+index,
-	    transformResult: function(response) {
-	    	response = JSON.parse(response)
-		    return {
-		        "suggestions": $.map(response.suggestions, function(dataItem) {
-		            return { "value": dataItem.term, "data": dataItem.weight };
-		        })
-		    };
-		},
-	    onSelect: function (suggestion) {
-	        explorer.explore(suggestion.value,suggestion.data);
-	        //alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
-	    }
-	});
 
 	explorer = new Graph(graphelement);
 
