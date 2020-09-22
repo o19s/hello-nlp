@@ -6,6 +6,8 @@ $(document).ready(function(){
 
 	var index = null;
 
+	// ------------------------------------------------
+
 	function Graph(container) {
 
 		this.cy = cytoscape({
