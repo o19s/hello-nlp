@@ -12,6 +12,10 @@ section {
 }
 
 
+.bg-primary {
+	background-color: #3D64C8!important;
+}
+
 /**** Autocomplete ****/
 
 .autocomplete-suggestions { border: 1px solid #999; background: #FFF; overflow: auto; }
@@ -20,3 +24,6 @@ section {
 .autocomplete-suggestions strong { font-weight: normal; color: #3399FF; }
 .autocomplete-group { padding: 2px 5px; }
 .autocomplete-group strong { display: block; border-bottom: 1px solid #000; }
+
+#indexes { padding:10px; background-color:rgba(255,255,255,0.0); color:#fff;}
+#indexes > option { font-size:1.5em; }
