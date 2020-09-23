@@ -1,23 +1,11 @@
-# This file is used by pip to install required python packages
-# Usage: pip install -r requirements.txt
-
-# Flask Framework
-Flask==1.0.2
-
-# Flask Packages
-Flask-Login==0.4.0
-Flask-Migrate==2.0.2
-Flask-Script==2.0.5
-Flask-SQLAlchemy==2.4.0
-Flask-WTF==0.14.2
-Flask-User==1.0.1.5
-
-# Automated tests
-pytest==3.0.5
-pytest-cov==2.4.0
-
-#SKIPCHUNK!
+fastapi==0.61.1
+uvicorn==0.11.8
+asynctest==0.13.0
+pytest==6.0.2
+pytest-cov==2.10.1
+pytest-aiohttp==0.3.0
+coverage==5.3
+elasticsearch==7.9.1
+pre-commit==2.7.1
 skipchunk>=0.0.1
-
-#Fixes for broken things
-werkzeug==0.16.1
+aiofiles==0.5.0

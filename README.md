@@ -1,121 +1,67 @@
-# Flask-User starter app v1.0
-
-This code base serves as starting point for writing your next Flask application.
-
-This branch is for Flask-User v1.0.
-
-For Flask-User v0.6, see [the Flask-User-Starter-App v0.6 branch](https://github.com/lingthio/Flask-User-starter-app/tree/v0.6).
-
-## Code characteristics
-
-* Tested on Python 2.6, 2.7, 3.3, 3.4, 3.5 and 3.6
-* Well organized directories with lots of comments
-    * app
-        * commands
-        * models
-        * static
-        * templates
-        * views
-    * tests
-* Includes test framework (`py.test` and `tox`)
-* Includes database migration framework (`alembic`)
-* Sends error emails to admins for unhandled exceptions
+# Hello-NLP
 
 
-## Setting up a development environment
-
-We assume that you have `git` and `virtualenv` and `virtualenvwrapper` installed.
-
-    # Clone the code repository into ~/dev/my_app
-    mkdir -p ~/dev
-    cd ~/dev
-    git clone https://github.com/lingthio/Flask-User-starter-app.git my_app
-
-    # Create the 'my_app' virtual environment
-    mkvirtualenv -p PATH/TO/PYTHON my_app
-
-    # Install required Python packages
-    cd ~/dev/my_app
-    workon my_app
-    pip install -r requirements.txt
 
 
-# Configuring SMTP
+# Quepid Elasticsearch Proxy
+## Elasticsearch proxy for Quepid. 
+A lot of Quepid users are surprised by the fact that Quepid
+works with Elasticsearch directly from the browser. Elasticsearch are 
+rarely available publicly or can be tunnneled to the labeller's computer.
 
-Copy the `local_settings_example.py` file to `local_settings.py`.
-
-    cp app/local_settings_example.py app/local_settings.py
-
-Edit the `local_settings.py` file.
-
-Specifically set all the MAIL_... settings to match your SMTP settings
-
-Note that Google's SMTP server requires the configuration of "less secure apps".
-See https://support.google.com/accounts/answer/6010255?hl=en
-
-Note that Yahoo's SMTP server requires the configuration of "Allow apps that use less secure sign in".
-See https://help.yahoo.com/kb/SLN27791.html
+`Quepid Elasticsearch Proxy` can be deployed next to your `Quepid` and can proxy requests to Elasticsearch. The proxy is protected with basic auth.
 
 
-## Initializing the Database
+## Run with Docker
+The image of the proxy is publicly available on [https://quay.io/amboss-mededu/quepid_es_proxy]().
+To run the proxy docker execute
+```bash
+docker run \
+-e "PROXY_USERNAME=username_is_here" \
+-e "PROXY_PASSWORD=password_is_here" \
+-e "ES_HOST=example-elasticsearch-domain.eu-west-1.es.amazonaws.com" \
+-e "ES_PORT=443" \
+-e "ES_USE_SSL=true" \
+-e "WEB_CONCURRENCY=2" \
+-p 5000:5000 \
+quay.io/amboss-mededu/quepid_es_proxy
+```
+The proxy is now available with basic auth now on `http://username_is_here:password_is_here@localhost:5000/`. 
+Use this address in Quepid insted of Elasticsearch.
 
-    # Create DB tables and populate the roles and users tables
-    python manage.py init_db
+If you run Elasticsearch locally in Docker, use Docker DNS in `ES_HOST`. 
+You might also need to specify a Docker network in which Elasticsearch is running.
+```bash
+docker run \
+-e "PROXY_USERNAME=username_is_here" \
+-e "PROXY_PASSWORD=password_is_here" \
+-e "ES_HOST=elasticsearch_docker_name" \
+-e "ES_PORT=9200" \
+-e "ES_USE_SSL=false" \
+-e "WEB_CONCURRENCY=2" \
+-p 5000:5000 \
+--network="elasticsearch-docker-network" \
+quay.io/amboss-mededu/quepid_es_proxy
+```
 
-    # Or if you have Fabric installed:
-    fab init_db
+## Run locally with Python virtual environment.
 
+Proxy uses Python 3.8.
 
-## Running the app
+First prepare a virtual environment `make prepare-env`.
+The proxy will be available with the default credentials on
+`http://lab_user:jhHB73bYBKk6G^@localhost:5000/`.
 
-    # Start the Flask development web server
-    python manage.py runserver
+To run the proxy locally execute `make run-service`. Modify `PROXY_USERNAME` and `PROXY_PASSWORD` environment variables in the `run-server` make target if you need.
 
-    # Or if you have Fabric installed:
-    fab runserver
+## Development
+### make doit
+To sort imports, format the code in the consistent way and execute `flake8` and `mypy` checks run `make doit`.
+### Formatting
+The code base is formatted with [https://github.com/psf/black](black).
+### Imports
+Imports are sorted with [https://github.com/PyCQA/isort](isort).
+### Pre-commit hooks.
+1. Install pre-commit. On Mac use `brew install pre-commit`, on Linux `pip install pre-commit`. 
+2. Install hooks `pre-commit install`.
 
-Point your web browser to http://localhost:5000/
-
-You can make use of the following users:
-- email `user@example.com` with password `Password1`.
-- email `admin@example.com` with password `Password1`.
-
-
-## Running the automated tests
-
-    # Start the Flask development web server
-    py.test tests/
-
-    # Or if you have Fabric installed:
-    fab test
-
-
-## Trouble shooting
-
-If you make changes in the Models and run into DB schema issues, delete the sqlite DB file `app.sqlite`.
-
-
-## See also
-
-* [FlaskDash](https://github.com/twintechlabs/flaskdash) is a starter app for Flask
-  with [Flask-User](https://readthedocs.org/projects/flask-user/)
-  and [CoreUI](https://coreui.io/) (A Bootstrap Admin Template).
-
-## Acknowledgements
-
-With thanks to the following Flask extensions:
-
-* [Alembic](http://alembic.zzzcomputing.com/)
-* [Flask](http://flask.pocoo.org/)
-* [Flask-Login](https://flask-login.readthedocs.io/)
-* [Flask-Migrate](https://flask-migrate.readthedocs.io/)
-* [Flask-Script](https://flask-script.readthedocs.io/)
-* [Flask-User](http://flask-user.readthedocs.io/en/v0.6/)
-
-<!-- Please consider leaving this line. Thank you -->
-[Flask-User-starter-app](https://github.com/lingthio/Flask-User-starter-app) was used as a starting point for this code repository.
-
-
-## Authors
-
-- Ling Thio -- ling.thio AT gmail DOT com
