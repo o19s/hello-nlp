@@ -1,21 +1,20 @@
 import pytest
 from asynctest import patch
 
-
 @pytest.mark.parametrize(
     "query,expected_query",
     [(None, None), ({"day": "Friday"}, {"query": {"day": "Friday"}})],
 )
 async def test_search_proxy(environment, query, expected_query):
 
-    from quepid_es_proxy import main
+    from hello_nlp import main
 
     with patch.object(
         main.executor, "search", return_value={"test": "passed"}
     ) as search_mock:
         result = await main.search_proxy(
             "big-index",
-            body=main.ProxyRequst(
+            body=main.ProxyRequest(
                 **{"explain": True, "from": 3, "size": 7, "query": query}
             ),
         )
@@ -33,7 +32,8 @@ async def test_search_proxy(environment, query, expected_query):
 
 
 async def test_explain_missing_documents():
-    from quepid_es_proxy import main
+
+    from hello_nlp import main
 
     with patch.object(
         main.executor, "search", return_value={"test": "passed"}
@@ -48,7 +48,8 @@ async def test_explain_missing_documents():
 
 
 async def test_explain():
-    from quepid_es_proxy import main
+
+    from hello_nlp import main
 
     with patch.object(
         main.executor, "explain", return_value={"test": "passed again!"}

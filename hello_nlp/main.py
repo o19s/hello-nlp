@@ -70,6 +70,21 @@ app.add_middleware(
 async def index():
     return RedirectResponse("/ui/index.html")
 
+@app.get('/environment')
+async def show_environment() -> dict:
+    """Shows the env-file configuration loaded for the Hello-NLP instance"""
+    return {
+        "NLP_USE_SSL": os.environ["NLP_USE_SSL"],
+        "NLP_HOST": os.environ["NLP_HOST"],
+        "NLP_PORT": os.environ["NLP_PORT"],
+        "NLP_NAME": os.environ["NLP_NAME"],
+        "NLP_ENGINE_NAME": os.environ["NLP_ENGINE_NAME"],
+        "NLP_PATH": os.environ["NLP_PATH"],
+        "WEB_CONCURRENCY":os.environ["WEB_CONCURRENCY"],
+        "PROXY_USERNAME":os.environ["PROXY_USERNAME"]
+        #,"PROXY_PASSWORD":os.environ["PROXY_PASSWORD"] <-- UNCOMMENT AT YOUR OWN RISK!
+    }
+
 # Suggest is our AJAX call for typeahead
 @app.get('/suggest/{index_name}')
 async def suggest(

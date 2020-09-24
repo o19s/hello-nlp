@@ -10,10 +10,6 @@ COPY . .
 
 ENV PYTHONPATH=/app
 
-EXPOSE 5050
+EXPOSE 5055
 
-CMD ["uvicorn",\
-    "hello-nlp.main:app",\
-    "--host", "0.0.0.0",\
-    "--port", "5050"\
-    ]
+CMD ["./run-elastic.sh"]

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-"""Payload."""
-
+from .interfaces import Doc_to_Text_PipelineInterface
 from spacy.tokens import Doc
+
 
 """
 Payloads are assigned to Open Class Words ONLY!
@@ -26,8 +26,8 @@ _POS_SCORES_ = {
 	'ADV'  :  1.5, 	#adverb
 	'INTJ' :  1.0, 	#interjection
 	'NOUN' :  2.0, 	#noun
-	'PROPN':  2.5, 	#proper noun
-	'VERB' :  2.0
+	'PROPN':  2.0, 	#proper noun
+	'VERB' :  2.0   #verb
 }
 
 """
@@ -46,7 +46,7 @@ _DEP_SCORES_ = {
 }
 
 
-class Payloader:
+class Payloader(Doc_to_Text_PipelineInterface):
 
 	def analyze(self,stream: Doc) -> str:
 		
@@ -55,7 +55,7 @@ class Payloader:
 		for tok in stream:
 			score = None
 
-			if (len(tok.text)>0) and ('|' not in tok.text):
+			if (len(tok.text)>0) and (self.delimiter not in tok.text):
 
 				if (tok.is_alpha) and (len(tok.lemma_)>0) and (tok.pos_ in self.pos_scores):
 					score = self.pos_scores[tok.pos_]
@@ -65,21 +65,27 @@ class Payloader:
 
 					value = str(score) # + 'f'
 
-					payloads.append(tok.lemma_ + '|' + value + ' ')
+					payloads.append(tok.lemma_ + self.delimiter + value + ' ')
 
 				else:
 					payloads.append(tok.text_with_ws)
 
 			else:
-				payloads.append(tok.text_with_ws.replace('|',''))
+				#We need to remove any other delimiter chars in the text
+				#Otherwise it will be picked up by the PayloadDelimiterFilter
+				payloads.append(tok.text_with_ws.replace(self.delimiter,''))
 
-		return ''.join([t for t in payloads if len(t)>0])
 
-	def __init__(self,metadata,pos_scores=_POS_SCORES_,dep_scores=_DEP_SCORES_):
+		text = ''.join([t for t in payloads if len(t)>0])
+
+		return text
+
+	def __init__(self,metadata,delimiter='|',pos_scores=_POS_SCORES_,dep_scores=_DEP_SCORES_):
 		self.name="Payloader"
 		self.pipeline = metadata
 		self.pipeline[self.name] = True
 
+		self.delimiter = delimiter
 		self.dep_scores = dep_scores
 		self.pos_scores = pos_scores
 

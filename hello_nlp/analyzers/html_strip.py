@@ -1,3 +1,5 @@
+from .interfaces import Text_to_Text_PipelineInterface
+
 import re
 
 # --------------------------------------
@@ -43,7 +45,7 @@ def strip_html_lxml(html):
     text = re.sub(r'\s+',' ',text)
     return text
 
-class HTML_Strip:
+class HTML_Strip(Text_to_Text_PipelineInterface):
     def analyze(self,text:str) -> str:
         if self.parser == "lxml":
             text = strip_html_lxml(text)

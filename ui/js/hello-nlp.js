@@ -247,6 +247,23 @@ $(document).ready(function(){
 
     // ------------------------------------------------
 
+    $.get('/environment',function(res,status) {
+        environment = $("#environment");
+        if (status=="success") {
+            environment.text(JSON.stringify(res,null,2))
+            /*
+            for(var i=0;i<res.indexes.length;i++) {
+                indexname = res.indexes[i]
+                option = $("<option value=\""+indexname+"\">"+indexname+"</option>");
+                option.click()
+                select.append(option)
+            }
+            */
+        }
+    });
+
+    // ------------------------------------------------
+
 
     explorer = new Graph(graphelement);
 

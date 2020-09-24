@@ -1,6 +1,7 @@
+from .interfaces import Doc_to_Doc_PipelineInterface
 from spacy.tokens import Doc
 
-class Lemmatizer:
+class Lemmatizer(Doc_to_Doc_PipelineInterface):
 	def analyze(self,stream: Doc) -> Doc:
 		return stream
 

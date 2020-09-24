@@ -1,0 +1,28 @@
+{
+
+    "analyzers": [
+        {
+            "name":"payloader",
+            "pipeline":[
+                "html_strip",
+                "patternize",
+                "tokenize",
+                "entitize",
+                "lemmatize",
+                "payload"
+            ]
+        }
+    ],
+    "fields": [
+        {
+            "source":"title",
+            "target":"title_payloads",
+            "analyzer":"payloader"
+        },
+        {
+            "source":"content",
+            "target":"content_payloads",
+            "analyzer":"payloader"
+        }
+    ]
+}
