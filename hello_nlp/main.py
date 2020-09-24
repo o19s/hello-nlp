@@ -40,8 +40,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 with open('config.json','r') as fd:
-    pipelines = Pipelines(json.load(fd))
+    config_json = json.load(fd)
+    pipelines = Pipelines(config_json)
 
 @app.get('/')
 async def index():
@@ -51,16 +53,21 @@ async def index():
 async def show_environment() -> dict:
     """Shows the env-file configuration loaded for the Hello-NLP instance"""
     return {
-        "NLP_USE_SSL": os.environ["NLP_USE_SSL"],
-        "NLP_HOST": os.environ["NLP_HOST"],
-        "NLP_PORT": os.environ["NLP_PORT"],
-        "NLP_NAME": os.environ["NLP_NAME"],
-        "NLP_ENGINE_NAME": os.environ["NLP_ENGINE_NAME"],
-        "NLP_PATH": os.environ["NLP_PATH"],
+        "ENGINE_USE_SSL": os.environ["ENGINE_USE_SSL"],
+        "ENGINE_HOST": os.environ["ENGINE_HOST"],
+        "ENGINE_PORT": os.environ["ENGINE_PORT"],
+        "APP_NAME": os.environ["APP_NAME"],
+        "ENGINE_NAME": os.environ["ENGINE_NAME"],
+        "DOCUMENTS_PATH": os.environ["DOCUMENTS_PATH"],
         "WEB_CONCURRENCY":os.environ["WEB_CONCURRENCY"],
         "PROXY_USERNAME":os.environ["PROXY_USERNAME"]
         #,"PROXY_PASSWORD":os.environ["PROXY_PASSWORD"] <-- UNCOMMENT AT YOUR OWN RISK!
     }
+
+@app.get('/pipeline')
+async def show_pipeline() -> dict:
+    """Shows the config.json pipeline loaded for the Hello-NLP instance"""
+    return config_json
 
 # Suggest is our AJAX call for typeahead
 @app.get('/suggest/{index_name}')
