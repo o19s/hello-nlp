@@ -21,12 +21,12 @@ app = FastAPI()
 app.mount("/ui/", StaticFiles(directory="ui"), name="ui")
 
 skipchunk = Connect(
-    os.environ["NLP_USE_SSL"],
-    os.environ["NLP_HOST"],
-    os.environ["NLP_PORT"],
-    os.environ["NLP_NAME"],
-    os.environ["NLP_ENGINE_NAME"],
-    os.environ["NLP_PATH"])
+    os.environ["ENGINE_USE_SSL"],
+    os.environ["ENGINE_HOST"],
+    os.environ["ENGINE_PORT"],
+    os.environ["APP_NAME"],
+    os.environ["ENGINE_NAME"],
+    os.environ["DOCUMENTS_PATH"])
 
 # Replace "*" to the list of your origins, e.g.
 # origins = ["quepid.yourcompany.com", "localhost:8080"]
