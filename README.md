@@ -1,6 +1,6 @@
-# Hello-NLP
+![Hello-NLP Logo](/ui/img/logo.png)
 
-
+Hello-NLP is a drop-in microservice to enhance your existing Solr or Elasticsearch index with the power of language.
 
 
 # Quepid Elasticsearch Proxy
