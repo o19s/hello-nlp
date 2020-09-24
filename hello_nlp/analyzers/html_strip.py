@@ -46,7 +46,9 @@ def strip_html_lxml(html):
     return text
 
 class HTML_Strip(Text_to_Text_PipelineInterface):
-    def analyze(self,text:str) -> str:
+    def analyze(self,text) -> str:
+        if isinstance(text,list):
+            text = ' '.join(text)
         if self.parser == "lxml":
             text = strip_html_lxml(text)
         elif parser == "bs4":

@@ -1,4 +1,5 @@
 import os
+import json
 
 from typing import List, Optional
 
@@ -16,33 +17,6 @@ from .skipchunkconnect import Connect
 from .pipeline import Pipelines
 
 app = FastAPI()
-
-"""
-pipelines = Pipelines([
-        {
-            "field":"title",
-            "pipeline":[
-                "html_strip",
-                "patternize",
-                "tokenize",
-                "entitize",
-                "lemmatize",
-                "payload"
-            ]
-        },
-        {
-            "field":"content",
-            "pipeline":[
-                "html_strip",
-                "patternize",
-                "tokenize",
-                "entitize",
-                "lemmatize",
-                "payload"
-            ]
-        }
-    ])
-"""
 
 app.mount("/ui/", StaticFiles(directory="ui"), name="ui")
 
@@ -65,6 +39,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+with open('config.json','r') as fd:
+    pipelines = Pipelines(json.load(fd))
 
 @app.get('/')
 async def index():
@@ -133,6 +110,36 @@ async def graph(index_name: str, subject: str) -> list:
     branches = 10
     tree = gq.graph(subject,objects=objects,branches=branches)
     return tree
+
+@app.get('/analyze/{analyzer}')
+async def analyze_text(analyzer: str, text: str) -> dict:
+    try:
+        res = {"output":str(pipelines.analyze(analyzer,text))}
+    except e as ValueError:
+        res = {"error":e}
+    return res
+
+class AnalyzeRequest(BaseModel):
+    text:str
+
+@app.post('/analyze/{analyzer}')
+async def analyze_body(analyzer: str, body: AnalyzeRequest) -> dict:
+    try:
+        res = {"output":str(pipelines.analyze(analyzer,body.text))}
+    except e as ValueError:
+        res = {"error":e}
+    return res
+
+class EnrichRequest(BaseModel):
+    doc:dict
+
+@app.post('/enrich/')
+async def enrich_document(body: EnrichRequest) -> dict:
+    try:
+        res = {"doc":str(pipelines.enrich(body.doc))}
+    except ValueError as e:
+        res = {"error":e}
+    return res
 
 ## ====================
 ## Search Proxy

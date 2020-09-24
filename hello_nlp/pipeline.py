@@ -5,13 +5,15 @@ pipelines = {
 	"html_strip":html_strip.HTML_Strip,
 	"tokenize":tokenize.Tokenizer,
 	"lemmatize":lemmatize.Lemmatizer,
-	"payloader":payload.Payloader
+	"payload":payload.Payloader
 }
 
 class Analyzer:
 	def analyze(self,text: str) -> str:
 		data = text
 		for stage in self.stages:
+			print(stage)
+			print(data)
 			data = stage.analyze(data)
 		text = data
 		return text
@@ -26,7 +28,7 @@ class Analyzer:
 
 class Field:
 	def analyze(self,text: str) -> str:
-		return analyzer.analyze(text)
+		return self.analyzer.analyze(text)
 
 	def __init__(self,field:dict,analyzer:Analyzer):
 		self.source = field["source"]
@@ -35,10 +37,14 @@ class Field:
 
 class Pipelines:
 
+	def analyze(self,analyzer,text) -> str:
+		return self.analyzers[analyzer].analyze(text)
+
 	def enrich(self,document:dict) -> dict:
 		for f in self.fields.keys():
 			field = self.fields[f]			
 			document[field.target] = field.analyze(document[f])
+		return document
 
 	def add_analyzer(self,analyzer):
 		self.analyzers[analyzer["name"]] = Analyzer(analyzer["pipeline"],self.nlp)
@@ -58,8 +64,8 @@ class Pipelines:
 
 		self.analyzers = {}
 		for analyzer in config["analyzers"]:
-			self.add(analyzer)
+			self.add_analyzer(analyzer)
 
 		self.fields = {}
 		for field in config["fields"]:
-			self.add(field)
+			self.add_field(field)
