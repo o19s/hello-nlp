@@ -39,9 +39,9 @@ $(document).ready(function(){
                         </tr>`).appendTo(debug)
                 }
                 $(`<tr>
-                    <td>Total Trip:</td>
+                    <td>Round Trip:</td>
                     <td><strong>${totalTime}</strong></td>
-                    <td></td>
+                    <td><em>NOTE!  Round trip time includes debug overhead.  "(end)" time measures pure analysis time.</em></td>
                     </tr>`).appendTo(debug)
 
             }

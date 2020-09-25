@@ -9,7 +9,7 @@ These Interfaces are used to reliably join pipeline stages together
 """
 
 from abc import ABC, abstractmethod
-from spacy.tokens import Doc
+from spacy.tokens import Doc, Span
 
 class Text_to_Text_PipelineInterface(ABC):
     @abstractmethod
@@ -27,7 +27,6 @@ class Text_to_Doc_PipelineInterface(ABC):
     @abstractmethod
     def debug(self,doc:Doc)->str:
         pass
-
 
 class Doc_to_Doc_PipelineInterface(ABC):
     @abstractmethod

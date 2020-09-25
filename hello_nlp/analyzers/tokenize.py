@@ -10,7 +10,7 @@ class Tokenizer(Text_to_Doc_PipelineInterface):
 	def debug(self,doc:Doc)->str:
 		svgs = []
 		for sent in doc.sents:
-			svgs.append(displacy.render(doc, style="dep", jupyter=False))
+			svgs.append(displacy.render(sent, style="dep", jupyter=False))
 		return svgs
 
 	def __init__(self,metadata):

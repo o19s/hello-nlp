@@ -48,37 +48,43 @@ _DEP_SCORES_ = {
 
 class Payloader(Doc_to_Text_PipelineInterface):
 
-	def analyze(self,stream: Doc) -> str:
+	def analyze(self, doc: Doc) -> str:
 		
-		payloads = []
+		sentences = []
 
-		for tok in stream:
-			score = None
+		for stream in doc.sents:
 
-			if (len(tok.text)>0) and (self.delimiter not in tok.text):
+			payloads = []
 
-				if (tok.is_alpha) and (len(tok.lemma_)>0) and (tok.pos_ in self.pos_scores):
-					score = self.pos_scores[tok.pos_]
+			for tok in stream:
+				score = None
 
-					if tok.dep_ in self.dep_scores:
-						score += self.dep_scores[tok.dep_]
+				if (len(tok.text)>0) and (self.delimiter not in tok.text):
 
-					value = str(score) # + 'f'
+					if (tok.is_alpha) and (len(tok.lemma_)>0) and (tok.pos_ in self.pos_scores):
+						score = self.pos_scores[tok.pos_]
 
-					payloads.append(tok.lemma_ + self.delimiter + value + ' ')
+						if tok.dep_ in self.dep_scores:
+							score += self.dep_scores[tok.dep_]
+
+						value = str(score) # + 'f'
+
+						payloads.append(tok.lemma_ + self.delimiter + value + ' ')
+
+					else:
+						payloads.append(tok.text_with_ws)
 
 				else:
-					payloads.append(tok.text_with_ws)
-
-			else:
-				#We need to remove any other delimiter chars in the text
-				#Otherwise it will be picked up by the PayloadDelimiterFilter
-				payloads.append(tok.text_with_ws.replace(self.delimiter,''))
+					#We need to remove any other delimiter chars in the text
+					#Otherwise it will be picked up by the PayloadDelimiterFilter
+					payloads.append(tok.text_with_ws.replace(self.delimiter,''))
 
 
-		text = ''.join([t for t in payloads if len(t)>0])
+			text = ''.join([t for t in payloads if len(t)>0])
 
-		return text
+			sentences.append(text)
+
+		return sentences
 
 	def debug(self,text:str) -> str:
 		return text

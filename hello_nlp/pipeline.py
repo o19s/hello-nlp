@@ -2,6 +2,8 @@ import datetime
 import spacy
 from .analyzers import html_strip, tokenize, lemmatize, payload
 
+from html import escape
+
 pipelines = {
 	"html_strip":html_strip.HTML_Strip,
 	"tokenize":tokenize.Tokenizer,
@@ -16,14 +18,19 @@ class Analyzer:
 	def analyze(self, text: str, debug:bool=False) -> str:
 		data = text
 		data_debug = []
+		total_time = 0
+		if debug:
+			data_debug.append({"name":"(start)","time":0,"debug":escape(text)})
 		for stage in self.stages:
 			if debug:
 				startwatch = time()
 			data = stage.analyze(data)
 			if debug:
 				stopwatch = time() - startwatch
+				total_time += stopwatch
 				data_debug.append({"name":stage.name,"time":stopwatch,"debug":stage.debug(data)})
 		text = data
+		data_debug.append({"name":"(end)","time":total_time,"debug":text})
 		return text,data_debug
 
 	def __init__(self,analyzers,nlp):
