@@ -80,6 +80,9 @@ class Payloader(Doc_to_Text_PipelineInterface):
 
 		return text
 
+	def debug(self,text:str) -> str:
+		return text
+
 	def __init__(self,metadata,delimiter='|',pos_scores=_POS_SCORES_,dep_scores=_DEP_SCORES_):
 		self.name="Payloader"
 		self.pipeline = metadata

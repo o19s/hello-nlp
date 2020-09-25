@@ -5,6 +5,10 @@ class Lemmatizer(Doc_to_Doc_PipelineInterface):
 	def analyze(self,stream: Doc) -> Doc:
 		return stream
 
+	def debug(self,stream: Doc) -> str:
+		return "lemmatize = True"
+
+
 	def __init__(self,metadata):
 		self.name="Lemmatizer"
 		self.pipeline = metadata

@@ -15,18 +15,33 @@ class Text_to_Text_PipelineInterface(ABC):
     @abstractmethod
     def analyze(self,text:str)->str:
         pass
+    @abstractmethod
+    def debug(self,text:str)->str:
+        pass
+
 
 class Text_to_Doc_PipelineInterface(ABC):
     @abstractmethod
     def analyze(self,text:str)->Doc:
         pass
+    @abstractmethod
+    def debug(self,doc:Doc)->str:
+        pass
+
 
 class Doc_to_Doc_PipelineInterface(ABC):
     @abstractmethod
     def analyze(self,doc:Doc)->Doc:
         pass
+    @abstractmethod
+    def debug(self,doc:Doc)->str:
+        pass
+
 
 class Doc_to_Text_PipelineInterface(ABC):
     @abstractmethod
     def analyze(self,doc:Doc)->str:
+        pass
+    @abstractmethod
+    def debug(self,text:str)->str:
         pass

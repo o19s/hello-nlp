@@ -1,3 +1,4 @@
+import datetime
 import spacy
 from .analyzers import html_strip, tokenize, lemmatize, payload
 
@@ -8,15 +9,22 @@ pipelines = {
 	"payload":payload.Payloader
 }
 
+def time():
+	return datetime.datetime.now().timestamp() * 1000
+
 class Analyzer:
-	def analyze(self,text: str) -> str:
+	def analyze(self, text: str, debug:bool=False) -> str:
 		data = text
+		data_debug = []
 		for stage in self.stages:
-			print(stage)
-			print(data)
+			if debug:
+				startwatch = time()
 			data = stage.analyze(data)
+			if debug:
+				stopwatch = time() - startwatch
+				data_debug.append({"name":stage.name,"time":stopwatch,"debug":stage.debug(data)})
 		text = data
-		return text
+		return text,data_debug
 
 	def __init__(self,analyzers,nlp):
 		self.stages = []
@@ -27,7 +35,7 @@ class Analyzer:
 		print(self.metadata)
 
 class Field:
-	def analyze(self,text: str) -> str:
+	def analyze(self,text: str, debug:bool=False) -> str:
 		return self.analyzer.analyze(text)
 
 	def __init__(self,field:dict,analyzer:Analyzer):
@@ -37,19 +45,20 @@ class Field:
 
 class Pipelines:
 
-	def analyze(self,analyzer,text) -> str:
-		return self.analyzers[analyzer].analyze(text)
+	def analyze(self, analyzer:str, text:str, debug:bool=False) -> str:
+		data,data_debug = self.analyzers[analyzer].analyze(text,debug=debug)
+		return data,data_debug
 
-	def enrich(self,document:dict) -> dict:
+	def enrich(self, document:dict, debug:bool=False) -> dict:
 		for f in self.fields.keys():
 			field = self.fields[f]			
 			document[field.target] = field.analyze(document[f])
 		return document
 
-	def add_analyzer(self,analyzer):
+	def add_analyzer(self, analyzer:dict):
 		self.analyzers[analyzer["name"]] = Analyzer(analyzer["pipeline"],self.nlp)
 
-	def add_field(self,field):
+	def add_field(self, field:dict):
 		analyzer = self.analyzers[field["analyzer"]]
 		self.fields[field["source"]] = Field(field,analyzer)
 

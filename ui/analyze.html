@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Hello-NLP</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="css/scrolling-nav.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand js-scroll-trigger" href="#"><img src="img/logo_sm.png" border="0" alt="Hello-NLP Logo" width=112 height=60 /></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="/ui/api.html">API</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="/ui/graph.html">Graph</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="/ui/search.html">Search</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="/ui/analyze.html">Analyze</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="/ui/analyze.html">Configuration</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-primary text-white">
+    <div class="container text-center">
+      <form name="analyze-form" id="form">
+        <h1>Analyze <select name="analyzers" id="analyzers"></select></h1>
+        <p class="lead">
+          <input type="text" id="text" name="text" size=50 value="<strong>The quick brown fox jumped over the lazy dog.</strong>"><input type="submit" name="submit" id="submit"></input>
+        </p>
+    </form>
+    </div>
+  </header>
+
+  <section id="output">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 mx-auto terms">
+          <h2>Result</h2>
+          <pre id="data"></pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12 mx-auto terms">
+          <h2>Debug</h2>
+          <table id="debug" border="1" cellpadding="5">
+            <tr><th>Stage</th><th>Milliseconds</th><th>Output</th></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-5 bg-dark">
+    <div class="container">
+      <p class="m-0 text-center text-white">Copyright &copy; OpenSource Connections 2020</p>
+    </div>
+    <!-- /.container -->
+  </footer>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom JavaScript for this theme -->
+  <script src="js/scrolling-nav.js"></script>
+
+  <!-- HELLO-NLP -->
+  <script src="js/analyze.js"></script>
+
+
+</body>
+
+</html>

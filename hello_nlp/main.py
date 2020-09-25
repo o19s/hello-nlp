@@ -118,10 +118,21 @@ async def graph(index_name: str, subject: str) -> list:
     tree = gq.graph(subject,objects=objects,branches=branches)
     return tree
 
-@app.get('/analyze/{analyzer}')
-async def analyze_text(analyzer: str, text: str) -> dict:
+@app.get('/analyzers')
+async def analyzers() -> dict:
     try:
-        res = {"output":str(pipelines.analyze(analyzer,text))}
+        #data = [{'name':a} for a in pipelines.analyzers.keys()]
+        data = list(pipelines.analyzers.keys())
+        res = {'data':data}
+    except e as ValueError:
+        res = {'error':e}
+    return res
+
+@app.get('/analyze/{analyzer}')
+async def analyze_text(analyzer: str, text: str, debug:bool=False) -> dict:
+    try:
+        data, data_debug = pipelines.analyze(analyzer,text,debug=debug)
+        res = {"data":str(data),"debug":data_debug}
     except e as ValueError:
         res = {"error":e}
     return res
@@ -132,7 +143,8 @@ class AnalyzeRequest(BaseModel):
 @app.post('/analyze/{analyzer}')
 async def analyze_body(analyzer: str, body: AnalyzeRequest) -> dict:
     try:
-        res = {"output":str(pipelines.analyze(analyzer,body.text))}
+        data, data_debug = pipelines.analyze(analyzer,body.text,debug=debug)
+        res = {"data":str(data),"debug":data_debug}
     except e as ValueError:
         res = {"error":e}
     return res
