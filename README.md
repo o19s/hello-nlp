@@ -8,6 +8,31 @@ Hello-NLP is opinionated, but not imposing.  It doesn't try to assume what's rel
 
 Also, since the NLP community (mostly) uses Python, it brings Python extensibility to your content and query analysis that are otherwise unavailable in the Java-based Solr/Elastic stacks.  You can create an analyzer using Huggingface, SpaCy, Gensim, Scikit-learn, Pytorch, Tensorflow, or anything else you can imagine.  And, if you want to use a non-Python tool during analysis (like Duckling), it's easy to write a service call out using Python requests!
 
+## Install
+
+Clone this repo!  Then check your configs:
+- config.json
+- solr.conf
+- elasticsearch.conf
+Install via either Docker or Manually
+
+### Docker
+Open the Dockerfile and change the run command to either run-solr.sh or run-elastic.sh, depending on your search engine.
+
+Then build and run the container:
+
+```bash
+docker build -t hello-nlp .
+docker run 
+```
+
+### Manual
+
+```bash
+python -m spacy download 'en_core_web_lg'
+python -m nltk.downloader wordnet
+```
+
 ## Graph API
 
 ### GET /graph/{index_name}?query={query}
