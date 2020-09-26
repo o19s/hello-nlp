@@ -26,7 +26,7 @@ docker build -t hello_nlp .
 docker run -p 5055:5055 hello_nlp
 ```
 
-_ignore the nltk downloader warning - it's fine!_
+_ignore the nltk downloader and pip warnings - it's fine!_
 
 ### Manual
 
