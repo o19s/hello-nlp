@@ -41,7 +41,7 @@ _ignore the nltk downloader and pip warnings - it's fine!_
 
 When running, you can then access the Admin UI and API docs at http://localhost:5055 
 
-### Manual
+### Manual Installation
 
 Install the dependencies
 
@@ -153,6 +153,12 @@ Uses neuralcoref for in-place rewriting of pronouns with their nouns.
 
 Uses Skipchunk to extract a vocabulary and latent knowledge graph to be used as a read-to-go autocomplete
 
+### patternization 
+
+_(coming soon!)_
+
+Uses Duckling to identify loosely structured value entities and replaces them with canonical forms
+
 ### tokenization 
 
 Uses SpaCy to tokenize and tag text that can be used later in the analysis chain
@@ -162,6 +168,12 @@ Uses SpaCy to tokenize and tag text that can be used later in the analysis chain
 _(coming soon!)_
 
 Copies text-embedded entities of specific classes to other fields, for faceting and filtering
+
+### vectorization
+
+_(coming soon!)_
+
+Uses huggingface models to get transformer embeddings and copy them into a vector field for nearest-neighbor search, fine-tuning, and other tasks.
 
 ### lemmatization 
 
