@@ -51,12 +51,17 @@
 
   <header class="bg-primary text-white">
     <div class="container text-center">
-      <form name="analyze-form" id="form">
-        <h1>Analyze <select name="analyzers" id="analyzers"></select></h1>
+      
+      <!-- ANALYZER FORM! -->
+      <form name="analyze-form" id="form" method="GET" action="/ui/analyze.html">
+        <h1>Analyze <select name="analyzer" id="analyzer"></select></h1>
         <p class="lead">
-          <input type="text" id="text" name="text" size=50 value="<strong>The quick brown fox jumped over the lazy dog.</strong>"><input type="submit" name="submit" id="submit"></input>
+          <input type="text" id="text" name="text" size=50 value="<strong>The quick brown fox jumped over the lazy dog.</strong>">
+          <br />
+          <input type="submit" id="submit"></input>
         </p>
-    </form>
+      </form>
+
     </div>
   </header>
 
