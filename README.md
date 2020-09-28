@@ -1,32 +1,45 @@
 ![Hello-NLP Logo](/ui/img/logo.png)
 
-Hello-NLP is a drop-in microservice to enhance your existing Solr or Elasticsearch index with the power of Python NLP.
+Hello-NLP is a drop-in microservice to enhance Solr or Elasticsearch with the power of Python NLP.  It is written to be a practical addition to your search relevance stack with minimal learning curve to get you running quickly and efficiently.
 
 In short, it exposes an enrichment service for a configurable analysis pipeline that aims to solve the naive normalization issues that happen during text analysis in Lucene search engines, and gives you the tools to craft business driven relevance without starting from scratch.
 
-Hello-NLP is opinionated, but not imposing.  It doesn't try to assume what's relevant - but it does give you better tools and signals to use while you tune relevance.
+Hello-NLP is opinionated, but not imposing.  It doesn't try to assume what's relevant - but it does give you better tools and signals to use while you tune relevance.  If you're used to crafting analyzers in Elastic or fieldTypes in Solr, then you'll feel comfortable with Hello-NLP.
 
 Also, since the NLP community (mostly) uses Python, it brings Python extensibility to your content and query analysis that are otherwise unavailable in the Java-based Solr/Elastic stacks.  You can create an analyzer using Huggingface, SpaCy, Gensim, Scikit-learn, Pytorch, Tensorflow, or anything else you can imagine.  And, if you want to use a non-Python tool during analysis (like Duckling), it's easy to write a service call out using Python requests!
 
 ## Installation
 
-Clone this repo!  Then check your configs:
-- config.json
-- solr.conf
-- elasticsearch.conf
-Install via either Docker or Manually
+Clone this repo!  Then Install via either Docker or Manually
 
 ### Docker
 Open the Dockerfile and change the run command to either run-solr.sh or run-elastic.sh, depending on your search engine.
 
+Check your configs
+- config.json
+- docker-solr.conf
+- docker-elasticsearch.conf
+
 Then build and run the container (will take a little while):
 
+#### Solr
+```bash
+docker build -t hello_nlp .
+docker run -p 5050:5050 hello_nlp
+```
+_ignore the nltk downloader and pip warnings - it's fine!_
+
+When running, you can then access the Admin UI and API docs at http://localhost:5050
+
+#### Elasticsearch
 ```bash
 docker build -t hello_nlp .
 docker run -p 5055:5055 hello_nlp
 ```
 
 _ignore the nltk downloader and pip warnings - it's fine!_
+
+When running, you can then access the Admin UI and API docs at http://localhost:5055 
 
 ### Manual
 
@@ -37,6 +50,11 @@ pip install -r requirements.txt
 python -m spacy download 'en_core_web_lg'
 python -m nltk.downloader wordnet
 ```
+
+Check your configs
+- config.json
+- docker-solr.conf
+- docker-elasticsearch.conf
 
 Then start either ```./run-solr.sh``` or ```./run-elastic.sh```
 
@@ -123,23 +141,35 @@ Hello-NLP exposes https://github.com/o19s/skipchunk graphs as an autocomplete se
 
 ### html_strip 
 
-_TODO: Write this!_
+Removes HTML and XML tags from text, using well supported parsers like lxml or beautifulsoup4
+
+### coreference resolution 
+
+_(coming soon!)_
+
+Uses neuralcoref for in-place rewriting of pronouns with their nouns.
 
 ### knowledge graph extraction 
 
-_TODO: Write this!_
+Uses Skipchunk to extract a vocabulary and latent knowledge graph to be used as a read-to-go autocomplete
 
 ### tokenization 
 
-_TODO: Write this!_
+Uses SpaCy to tokenize and tag text that can be used later in the analysis chain
+
+### entity extraction
+
+_(coming soon!)_
+
+Copies text-embedded entities of specific classes to other fields, for faceting and filtering
 
 ### lemmatization 
 
-_TODO: Write this!_
+Lemmatizes Nouns and Verbs to their root form, as a more precise alternative to stemming
 
 ### semantic payloading 
 
-_TODO: Write this!_
+Attaches weights to parts-of-speech and entities, that will be expressed as delimited payloads for Lucene.
 
 ## Pipeline
 
@@ -152,7 +182,6 @@ It's easy to configure and use an analysis pipeline!  If you've ever written one
             "name":"payloader",
             "pipeline":[
                 "html_strip",
-                "patternize",
                 "tokenize",
                 "lemmatize",
                 "payload"
