@@ -118,6 +118,6 @@ ENV/
 app.sqlite
 app/local_settings.py
 
-
-
 \~$*.pptx
+
+data/**/*.json

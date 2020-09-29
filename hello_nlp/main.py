@@ -150,13 +150,14 @@ async def analyze_body(analyzer: str, body: AnalyzeRequest) -> dict:
 class IndexableDocument(BaseModel):
     doc:Optional[dict]
 
-@app.post('/enrich/')
-async def enrich_document(document: IndexableDocument) -> dict:
+@app.post('/enrich/{index_name}')
+async def enrich_document(index_name:str, document: IndexableDocument) -> dict:
     try:
         doc = document.doc
         enriched = pipelines.enrich(doc)
         idfield = config_json["id"]
         docid = doc[idfield]
+        iq = skipchunk.index_connect
         saveDocument(docid,enriched,os.environ["DOCUMENTS_PATH"])
         res = enriched
     except ValueError as e:
@@ -171,9 +172,9 @@ async def index_document(index_name:str, document: IndexableDocument) -> dict:
         enriched = pipelines.enrich(doc)
         idfield = config_json["id"]
         docid = doc[idfield]
-        saveDocument(docid,enriched,index_name,os.environ["DOCUMENTS_PATH"])
         iq = skipchunk.index_connect(index_name)
         iq.indexDocument(enriched)
+        saveDocument(docid,enriched,iq.engine.document_data)
         res = enriched
     except ValueError as e:
         print(e)
@@ -184,7 +185,7 @@ async def index_document(index_name:str, document: IndexableDocument) -> dict:
 async def reindex_all_documents(index_name:str) -> dict:
     try:
         iq = skipchunk.index_connect(index_name)
-        iq.indexGenerator(indexableDocuments(os.environ["DOCUMENTS_PATH"]))
+        iq.indexGenerator(indexableDocuments(iq.engine.document_data))
         res = {"success":True}
     except ValueError as e:
         print(e)
