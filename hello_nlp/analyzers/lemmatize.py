@@ -16,8 +16,6 @@ class Lemmatizer(Doc_to_Doc_PipelineInterface):
 		if not self.is_last_stage:
 			return doc
 
-		print("HELLO!!!")
-
 		sentences = []
 		for stream in doc.sents:
 			lemmas = []
@@ -31,20 +29,21 @@ class Lemmatizer(Doc_to_Doc_PipelineInterface):
 			text = ''.join([t for t in lemmas if len(t)>0])
 
 			sentences.append(text)
-			print(sentences)
 
 		return sentences
 
 	def debug(self,text: str) -> str:
-		return "lemmatize = True"
+		if not self.is_last_stage:
+			return "lemmatize = true"
+		return text
 
 	def __init__(self,metadata,pos_lemma=_POS_LEMMA_):
 		self.name="lemmatize"
 		self.pipeline = metadata
 		self.pipeline[self.name] = True
+
 		self.pos_lemma = pos_lemma
 		self.is_last_stage = False
-
 		stages = self.pipeline["stages"]
 		if "lemmatize" == stages[len(stages)-1]:
 			self.is_last_stage = True
