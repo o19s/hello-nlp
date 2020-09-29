@@ -3,10 +3,10 @@ import json
 
 from typing import List, Optional
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 
 from pydantic import BaseModel
 
@@ -204,12 +204,12 @@ async def reindex_all_documents(index_name:str) -> dict:
 
 # Search the Solr core
 @app.get('/solr/{index_name}')
-async def solr_query(index_name: str, request: Request) -> dict:
+async def solr_query(index_name: str, request: Request):
     #bypass fastAPI and just use starlette to get the querystring
     uri = skipchunk.uri + index_name + '/select?' + str(request.query_params)
     query = request.query_params
     res = await executor.passthrough(uri)
-    return res.json()
+    return Response(content=res.text, media_type="application/json")
 
 # Search the Elastic core
 @app.post('/elastic/{index_name}')
