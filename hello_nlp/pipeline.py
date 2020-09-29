@@ -40,10 +40,10 @@ class Analyzer:
 
 	def __init__(self,analyzers,nlp):
 		self.stages = []
-		self.metadata = {"nlp":nlp}
+		self.metadata = {"nlp":nlp,"stages":[]}
 		for stage in analyzers:
 			if stage in pipelines.keys():
-				print(pipelines[stage])
+				self.metadata["stages"].append(stage)
 				self.stages.append(pipelines[stage](self.metadata))
 		print(self.metadata)
 
@@ -65,9 +65,10 @@ class Pipelines:
 
 	def enrich(self, document:dict, debug:bool=False) -> dict:
 		for f in self.fields.keys():
-			field = self.fields[f]
-			data,data_debug = field.analyze(document[f],debug=debug)
-			document[field.target] = data
+			fields = self.fields[f]
+			for field in fields:
+				data,data_debug = field.analyze(document[f],debug=debug)
+				document[field.target] = data
 		return document
 
 	def add_analyzer(self, analyzer:dict):
@@ -75,7 +76,9 @@ class Pipelines:
 
 	def add_field(self, field:dict):
 		analyzer = self.analyzers[field["analyzer"]]
-		self.fields[field["source"]] = Field(field,analyzer)
+		if field["source"] not in self.fields.keys():
+			self.fields[field["source"]] = []	
+		self.fields[field["source"]].append(Field(field,analyzer))
 
 	def __init__(self,config):
 

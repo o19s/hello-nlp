@@ -8,7 +8,6 @@
             "pipeline":[
                 "html_strip",
                 "tokenize",
-                "lemmatize",
                 "payload"
             ]
         },
@@ -18,6 +17,14 @@
                 "html_strip",
                 "tokenize",
                 "entitize"
+            ]
+        },
+        {
+            "name":"lemmatizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "lemmatize"
             ]
         }
     ],
@@ -37,5 +44,12 @@
             "target":"people_ss",
             "analyzer":"entitizer"
         }        
+    ],
+    "query": [
+        {
+            "source":"q",
+            "target":"",
+            "analyzer":"lemmatizer"
+        }
     ]
 }
