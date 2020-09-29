@@ -167,7 +167,7 @@ async def index_document(index_name:str, document: IndexableDocument) -> dict:
         enriched = pipelines.enrich(doc)
         idfield = config_json["id"]
         docid = doc[idfield]
-        saveDocument(docid,enriched,os.environ["DOCUMENTS_PATH"])
+        saveDocument(docid,enriched,index_name,os.environ["DOCUMENTS_PATH"])
         iq = skipchunk.index_connect(index_name)
         iq.indexDocument(enriched)
         res = enriched
@@ -176,11 +176,11 @@ async def index_document(index_name:str, document: IndexableDocument) -> dict:
     return res
 
 @app.post('/reindex/{index_name}')
-async def reindex_all_documents() -> dict:
+async def reindex_all_documents(index_name:str) -> dict:
     try:
-        for document in indexableDocuments():
-            executor.index(document)
-        res = enriched
+        iq = skipchunk.index_connect(index_name)
+        iq.indexGenerator(indexableDocuments(os.environ["DOCUMENTS_PATH"]))
+        res = {"success":True}
     except ValueError as e:
         res = {"error":e}
     return res

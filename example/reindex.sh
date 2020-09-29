@@ -1,11 +1,9 @@
 #Solr
 curl --header "Content-Type: application/json" \
   --request POST \
-  --data @blog-posts-one.json \
-  http://localhost:5050/index/osc-blog
+  http://localhost:5050/reindex/osc-blog
 
 #Elastic
 curl --header "Content-Type: application/json" \
   --request POST \
-  --data @blog-posts-one.json \
-  http://localhost:5055/index/osc-blog
+  http://localhost:5055/reindex/osc-blog

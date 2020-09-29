@@ -11,4 +11,4 @@ def indexableDocuments(path):
         filename = os.path.join(path, f) 
         if os.path.isfile(filename) and '.json' in filename:
             with open(filename,'r') as doc:
-                yield doc
+                yield json.load(doc)
