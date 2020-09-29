@@ -10,7 +10,7 @@ class Lemmatizer(Doc_to_Doc_PipelineInterface):
 
 
 	def __init__(self,metadata):
-		self.name="Lemmatizer"
+		self.name="lemmatize"
 		self.pipeline = metadata
 		self.pipeline[self.name] = True
 

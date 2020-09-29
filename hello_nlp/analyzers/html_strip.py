@@ -61,7 +61,7 @@ class HTML_Strip(Text_to_Text_PipelineInterface):
         return text
 
     def __init__(self,metadata):
-        self.name="HTML_Strip"
+        self.name="html_strip"
         self.pipeline = metadata
         self.pipeline[self.name] = True
         if "html_parser" not in self.pipeline.keys():

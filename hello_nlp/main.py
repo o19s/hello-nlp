@@ -129,7 +129,7 @@ async def analyze_text(analyzer: str, text: str, debug:bool=False) -> dict:
         data, data_debug = pipelines.analyze(analyzer,text,debug=debug)
         res = {"data":str(data),"debug":data_debug}
     except ValueError as e:
-        print(e)        
+        print(e)
         res = {"error":e}
     return res
 
@@ -142,7 +142,7 @@ async def analyze_body(analyzer: str, body: AnalyzeRequest) -> dict:
         data, data_debug = pipelines.analyze(analyzer,body.text,debug=debug)
         res = {"data":str(data),"debug":data_debug}
     except ValueError as e:
-        print(e)        
+        print(e)
         res = {"error":e}
     return res
 
@@ -160,7 +160,7 @@ async def enrich_document(document: IndexableDocument) -> dict:
         saveDocument(docid,enriched,os.environ["DOCUMENTS_PATH"])
         res = enriched
     except ValueError as e:
-        print(e)        
+        print(e)
         res = {"error":e}
     return res
 
@@ -176,7 +176,7 @@ async def index_document(index_name:str, document: IndexableDocument) -> dict:
         iq.indexDocument(enriched)
         res = enriched
     except ValueError as e:
-        print(e)        
+        print(e)
         res = {"error":e}
     return res
 
@@ -187,7 +187,7 @@ async def reindex_all_documents(index_name:str) -> dict:
         iq.indexGenerator(indexableDocuments(os.environ["DOCUMENTS_PATH"]))
         res = {"success":True}
     except ValueError as e:
-        print(e)        
+        print(e)
         res = {"error":e}
     return res
 

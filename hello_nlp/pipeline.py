@@ -36,8 +36,6 @@ class Analyzer:
 				data_debug.append({"name":stage.name,"time":stopwatch,"debug":stage.debug(data)})
 		text = data
 		data_debug.append({"name":"(end)","time":total_time,"debug":text})
-		print('HELLOOO!!!')
-		print(text,data_debug)
 		return text,data_debug
 
 	def __init__(self,analyzers,nlp):
@@ -63,7 +61,6 @@ class Pipelines:
 
 	def analyze(self, analyzer:str, text:str, debug:bool=False) -> str:
 		data,data_debug = self.analyzers[analyzer].analyze(text,debug=debug)
-		print(data,data_debug)
 		return data,data_debug
 
 	def enrich(self, document:dict, debug:bool=False) -> dict:

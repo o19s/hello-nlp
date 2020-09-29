@@ -47,8 +47,6 @@ class Plugin():
     def analyze(self,doc:Doc)->list:
         sentences = []
         people = extract_people(doc)
-        print('EXTRACTED')
-        print(people)
         return people
 
     def debug(self,doc:Doc)->list:

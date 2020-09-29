@@ -14,7 +14,7 @@ class Tokenizer(Text_to_Doc_PipelineInterface):
 		return svgs
 
 	def __init__(self,metadata):
-		self.name="Tokenizer"
+		self.name="tokenize"
 		self.pipeline = metadata
 		self.pipeline[self.name] = True
 
