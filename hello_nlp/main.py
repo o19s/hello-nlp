@@ -16,6 +16,8 @@ from .elastic import executor
 from .skipchunkconnect import Connect
 from .pipeline import Pipelines
 
+from .storage import saveDocument,indexableDocuments
+
 app = FastAPI()
 
 app.mount("/ui/", StaticFiles(directory="ui"), name="ui")
@@ -44,6 +46,7 @@ app.add_middleware(
 with open('config.json','r') as fd:
     config_json = json.load(fd)
     pipelines = Pipelines(config_json)
+    #pipelines = {}
 
 @app.get('/')
 async def index():
@@ -90,15 +93,6 @@ async def index_summarize(index_name: str) -> dict:
     gq = skipchunk.graph_connect(index_name)
     concepts,predicates = gq.summarize()
     return {'concepts':concepts,'predicates':predicates}
-
-# Search the Solr core
-@app.get('/solr/{index_name}/_select')
-async def solrsearch(index_name: str, request: Request) -> dict:
-    #print(request.query_params)
-    iq = skipchunk.index_connect(index_name)
-    query = request.query_params
-    results,status = iq.search(query)
-    return results,status
 
 @app.get('/graph/{index_name}')
 async def graph(index_name: str, subject: str) -> list:
@@ -149,13 +143,44 @@ async def analyze_body(analyzer: str, body: AnalyzeRequest) -> dict:
         res = {"error":e}
     return res
 
-class EnrichRequest(BaseModel):
-    doc:dict
+
+class IndexableDocument(BaseModel):
+    doc:Optional[dict]
 
 @app.post('/enrich/')
-async def enrich_document(body: EnrichRequest) -> dict:
+async def enrich_document(document: IndexableDocument) -> dict:
     try:
-        res = {"doc":str(pipelines.enrich(body.doc))}
+        doc = document.doc
+        enriched = pipelines.enrich(doc)
+        idfield = config_json["id"]
+        docid = doc[idfield]
+        saveDocument(docid,enriched,os.environ["DOCUMENTS_PATH"])
+        res = enriched
+    except ValueError as e:
+        res = {"error":e}
+    return res
+
+@app.post('/index/{index_name}')
+async def index_document(index_name:str, document: IndexableDocument) -> dict:
+    try:
+        doc = document.doc
+        enriched = pipelines.enrich(doc)
+        idfield = config_json["id"]
+        docid = doc[idfield]
+        saveDocument(docid,enriched,os.environ["DOCUMENTS_PATH"])
+        iq = skipchunk.index_connect(index_name)
+        iq.indexDocument(enriched)
+        res = enriched
+    except ValueError as e:
+        res = {"error":e}
+    return res
+
+@app.post('/reindex/{index_name}')
+async def reindex_all_documents() -> dict:
+    try:
+        for document in indexableDocuments():
+            executor.index(document)
+        res = enriched
     except ValueError as e:
         res = {"error":e}
     return res
@@ -164,36 +189,33 @@ async def enrich_document(body: EnrichRequest) -> dict:
 ## Search Proxy
 ## ====================
 
-class ProxyRequest(BaseModel):
-    explain: bool
-    from_: int
-    size: int
-    source: Optional[List[str]]
-    query: Optional[dict]
+# Search the Solr core
+@app.get('/solr/{index_name}')
+async def solr_query(index_name: str, request: Request) -> dict:
+    #bypass fastAPI and just use starlette to get the querystring
+    iq = skipchunk.index_connect(index_name)
+    query = request.query_params
+    results,status = iq.search(query)
+    return results,status
 
-    class Config:
-        fields = {"from_": "from", "source": "_source"}
+# Search the Solr core
+@app.post('/elastic/{index_name}')
+async def elastic_query(index_name: str, request: Request) -> dict:
+    #bypass fastAPI and just use starlette to get the body
+    body = json.loads(await request.body())
+    result = await executor.passthrough(index_name,body)
+    return result
+
+
+## =====================
+## Quepid/Splainer Proxy
+## =====================
+
 
 @app.get("/healthcheck")
 async def health_check():
     """Health check"""
     return {"status": "OK"}
-
-@app.post("/search/{index_name}")
-async def search_proxy(
-    index_name: str, body: ProxyRequest, username: str = Depends(basic_auth)
-) -> dict:
-    result = await executor.search(
-        index_name,
-        body.from_,
-        body.size,
-        body.explain,
-        body.source,
-        {"query": body.query} if body.query else None,
-        None,
-    )
-    return result
-
 
 @app.get("/explain/{index_name}")
 async def explain_missing_documents(
@@ -213,7 +235,6 @@ async def explain_missing_documents(
         q,
     )
     return result
-
 
 @app.post("/explain/{index_name}/_doc/{doc_id}/_explain")
 async def explain(

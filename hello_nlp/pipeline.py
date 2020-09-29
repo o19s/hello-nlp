@@ -43,7 +43,8 @@ class Analyzer:
 
 class Field:
 	def analyze(self,text: str, debug:bool=False) -> str:
-		return self.analyzer.analyze(text)
+		data,data_debug = self.analyzer.analyze(text,debug=debug)
+		return data,data_debug 
 
 	def __init__(self,field:dict,analyzer:Analyzer):
 		self.source = field["source"]
@@ -58,8 +59,9 @@ class Pipelines:
 
 	def enrich(self, document:dict, debug:bool=False) -> dict:
 		for f in self.fields.keys():
-			field = self.fields[f]			
-			document[field.target] = field.analyze(document[f])
+			field = self.fields[f]
+			data,data_debug = field.analyze(document[f],debug=debug)
+			document[field.target] = data
 		return document
 
 	def add_analyzer(self, analyzer:dict):

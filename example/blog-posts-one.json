@@ -1,0 +1,17 @@
+{"doc":
+  {
+    "id": "e6354049b02b33869d73198e8393608d",
+    "url_s": "https://opensourceconnections.com/blog/2013/11/15/using-cassandra-to-build-a-naive-bayes-classifier-of-users-based-upon-behavior/",
+    "title": "Using Cassandra to Build a Naive Bayes Classifier of Users Based Upon Behavior",
+    "content": [
+      "In our last post, we found out how simple it is to use Cassandra to estimate ad conversion. Its easy, because effectively all you have to do is accumulate counts – and Cassandra is quite good at counting. As we demonstrated in that post, Cassandra can be used as a giant, distributed, redundant, \"infinitely\" scalable counting framework. During this post will take the online ad company example just a bit further by creating a Cassandra-backed Naive Bayes Classifier. Again, we see that the \"secret sauce\" is simply keeping track of the appropriate counts.",
+      "In the previous post, we helped equip your online ad company with the ability to track ad conversion rates. But competition is steep and well need to do a little better than ad conversion rates if your company is to stay on top. Recently, suspicions have arisen that ads are often being shown to unlikely customers. A quick look at the logs confirms this concern. For instance, there was a case of one internet user that clicked almost every single ad that he was shown – so long as it related to the camping gear. Several times, he went on to make purchases: a tent, a lantern, and a sleeping bag. But despite this users obvious interest in outdoor sporting goods, your logs indicated that fully 90% of the ads he was shown were for womens apparel. Of these ads, this user clicked none of them.",
+      "Lets attack this problem by creating a classifier. Fortunately for us, your company specializes in two main genres, fashion, and outdoors sporting goods. If we can determine which type of user were dealing with, then we can improve our conversion rates considerably by simply showing users the appropriate ads.",
+      "Naive Bayes Classifiers",
+      "With this goal in mind, lets look at the theory behind Naive Bayes Classifiers so that we can build our own. The purpose of a classifier is to identify which group a sample belongs to based upon the given evidence. In this case, our \"sample\", is an individual user, and based upon the evidence of which ads she clicks, we wish to identify which group she belongs to: fashion or outdoors. To put some math to the problem, consider the following question:",
+      "What is the probability that user is from group    given the fact that this user has clicked on ads   ,   , and   ?",
+      "To put this into equation form, we can write:"
+    ],
+    "summary_t": ""
+  }
+}

@@ -1,13 +1,12 @@
 {
+    "id": "id",
     "model": "en_core_web_lg",
     "analyzers": [
         {
             "name":"payloader",
             "pipeline":[
                 "html_strip",
-                "patternize",
                 "tokenize",
-                "entitize",
                 "lemmatize",
                 "payload"
             ]

@@ -2,31 +2,25 @@ from typing import List, Optional
 
 from .connection import get_connection
 
-
-async def search(
-    index_name: str,
-    from_: int,
-    size: int,
-    explain: bool = False,
-    source: Optional[List[str]] = None,
-    query: Optional[str] = None,
-    q: Optional[str] = None,
-):
+async def passthrough(index_name:str, body:dict):
     conn = await get_connection()
+
+    query = {"query": body["query"]} if "query" in body else None
+
     payload = {
-        "from_": from_,
-        "size": size,
-        "explain": explain,
-        "_source": source,
-        "body": query,
-        "q": q,
+        "from_": body["from"],
+        "size": body["size"],
+        "explain": body["explain"],
+        "_source": body["_source"],
+        "body": query
     }
+
     r = conn.search(
         index=index_name,
         **payload,
     )
-    return await r
 
+    return await r
 
 async def explain(
     index_name: str,
@@ -35,3 +29,6 @@ async def explain(
 ):
     conn = await get_connection()
     return await conn.explain(index_name, document_id, query)
+
+def index(index_name,document):
+    pass
