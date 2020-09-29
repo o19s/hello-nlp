@@ -118,7 +118,8 @@ async def analyzers() -> dict:
         #data = [{'name':a} for a in pipelines.analyzers.keys()]
         data = list(pipelines.analyzers.keys())
         res = {'data':data}
-    except e as ValueError:
+    except ValueError as e:
+        print(e)
         res = {'error':e}
     return res
 
@@ -127,7 +128,8 @@ async def analyze_text(analyzer: str, text: str, debug:bool=False) -> dict:
     try:
         data, data_debug = pipelines.analyze(analyzer,text,debug=debug)
         res = {"data":str(data),"debug":data_debug}
-    except e as ValueError:
+    except ValueError as e:
+        print(e)        
         res = {"error":e}
     return res
 
@@ -139,7 +141,8 @@ async def analyze_body(analyzer: str, body: AnalyzeRequest) -> dict:
     try:
         data, data_debug = pipelines.analyze(analyzer,body.text,debug=debug)
         res = {"data":str(data),"debug":data_debug}
-    except e as ValueError:
+    except ValueError as e:
+        print(e)        
         res = {"error":e}
     return res
 
@@ -157,6 +160,7 @@ async def enrich_document(document: IndexableDocument) -> dict:
         saveDocument(docid,enriched,os.environ["DOCUMENTS_PATH"])
         res = enriched
     except ValueError as e:
+        print(e)        
         res = {"error":e}
     return res
 
@@ -172,6 +176,7 @@ async def index_document(index_name:str, document: IndexableDocument) -> dict:
         iq.indexDocument(enriched)
         res = enriched
     except ValueError as e:
+        print(e)        
         res = {"error":e}
     return res
 
@@ -182,6 +187,7 @@ async def reindex_all_documents(index_name:str) -> dict:
         iq.indexGenerator(indexableDocuments(os.environ["DOCUMENTS_PATH"]))
         res = {"success":True}
     except ValueError as e:
+        print(e)        
         res = {"error":e}
     return res
 
@@ -198,7 +204,7 @@ async def solr_query(index_name: str, request: Request) -> dict:
     results,status = iq.search(query)
     return results,status
 
-# Search the Solr core
+# Search the Elastic core
 @app.post('/elastic/{index_name}')
 async def elastic_query(index_name: str, request: Request) -> dict:
     #bypass fastAPI and just use starlette to get the body

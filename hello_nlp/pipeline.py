@@ -1,8 +1,13 @@
 import datetime
 import spacy
-from .analyzers import html_strip, tokenize, lemmatize, payload
 
 from html import escape
+
+from .analyzers import html_strip, tokenize, lemmatize, payload
+from .plugins import load_plugin, get_plugins
+
+def time():
+	return datetime.datetime.now().timestamp() * 1000
 
 pipelines = {
 	"html_strip":html_strip.HTML_Strip,
@@ -11,8 +16,8 @@ pipelines = {
 	"payload":payload.Payloader
 }
 
-def time():
-	return datetime.datetime.now().timestamp() * 1000
+def add_to_pipelines(plugin:dict):
+	pipelines[plugin["name"]] = load_plugin(plugin).Plugin
 
 class Analyzer:
 	def analyze(self, text: str, debug:bool=False) -> str:
@@ -31,6 +36,8 @@ class Analyzer:
 				data_debug.append({"name":stage.name,"time":stopwatch,"debug":stage.debug(data)})
 		text = data
 		data_debug.append({"name":"(end)","time":total_time,"debug":text})
+		print('HELLOOO!!!')
+		print(text,data_debug)
 		return text,data_debug
 
 	def __init__(self,analyzers,nlp):
@@ -38,6 +45,7 @@ class Analyzer:
 		self.metadata = {"nlp":nlp}
 		for stage in analyzers:
 			if stage in pipelines.keys():
+				print(pipelines[stage])
 				self.stages.append(pipelines[stage](self.metadata))
 		print(self.metadata)
 
@@ -55,6 +63,7 @@ class Pipelines:
 
 	def analyze(self, analyzer:str, text:str, debug:bool=False) -> str:
 		data,data_debug = self.analyzers[analyzer].analyze(text,debug=debug)
+		print(data,data_debug)
 		return data,data_debug
 
 	def enrich(self, document:dict, debug:bool=False) -> dict:
@@ -75,10 +84,15 @@ class Pipelines:
 
 		if "model" not in config.keys():
 			raise ValueError("Yo! I need a model for spacy to load! Specify it as a model property in your config!")
-		
+
 		self.config = config
 
 		self.nlp = spacy.load(self.config["model"])
+
+		self.plugins = {}
+		if "plugin_path" in config.keys():
+			for plugin in get_plugins(config["plugin_path"]):
+				add_to_pipelines(plugin)
 
 		self.analyzers = {}
 		for analyzer in config["analyzers"]:

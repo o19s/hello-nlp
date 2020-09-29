@@ -1,6 +1,7 @@
 {
     "id": "id",
     "model": "en_core_web_lg",
+    "plugin_path": "./plugins",
     "analyzers": [
         {
             "name":"payloader",
@@ -9,6 +10,14 @@
                 "tokenize",
                 "lemmatize",
                 "payload"
+            ]
+        },
+        {
+            "name":"entitizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "entitize"
             ]
         }
     ],
@@ -22,6 +31,11 @@
             "source":"content",
             "target":"content_payloads",
             "analyzer":"payloader"
-        }
+        },
+        {
+            "source":"content",
+            "target":"people_ss",
+            "analyzer":"entitizer"
+        }        
     ]
 }
