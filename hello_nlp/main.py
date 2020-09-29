@@ -11,7 +11,8 @@ from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
 from .auth import basic_auth
-from .elastic import executor
+from .elastic import executor as elastic_executor
+from .solr import executor as solr_executor
 
 from .skipchunkconnect import Connect
 from .pipeline import Pipelines
@@ -29,6 +30,11 @@ skipchunk = Connect(
     os.environ["APP_NAME"],
     os.environ["ENGINE_NAME"],
     os.environ["DOCUMENTS_PATH"])
+
+if os.environ["ENGINE_NAME"] in ["solr"]:
+    executor = solr_executor
+elif os.environ["ENGINE_NAME"] in ["elastic","elasticsearch","es"]:
+    executor = elastic_executor
 
 # Replace "*" to the list of your origins, e.g.
 # origins = ["quepid.yourcompany.com", "localhost:8080"]
@@ -200,18 +206,17 @@ async def reindex_all_documents(index_name:str) -> dict:
 @app.get('/solr/{index_name}')
 async def solr_query(index_name: str, request: Request) -> dict:
     #bypass fastAPI and just use starlette to get the querystring
-    iq = skipchunk.index_connect(index_name)
+    uri = skipchunk.uri + index_name + '/select?' + str(request.query_params)
     query = request.query_params
-    results,status = iq.search(query)
-    return results,status
+    res = await executor.passthrough(uri)
+    return res.json()
 
 # Search the Elastic core
 @app.post('/elastic/{index_name}')
 async def elastic_query(index_name: str, request: Request) -> dict:
     #bypass fastAPI and just use starlette to get the body
     body = json.loads(await request.body())
-    result = await executor.passthrough(index_name,body)
-    return result
+    return await executor.passthrough(index_name,body)
 
 
 ## =====================

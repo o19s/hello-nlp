@@ -13,4 +13,5 @@ python-dotenv==0.14.0
 spacy==2.3.2
 bs4==0.0.1
 lxml==4.5.2
+httpx==0.15.4
 skipchunk>=0.9.9

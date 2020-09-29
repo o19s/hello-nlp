@@ -6,8 +6,12 @@ from html import escape
 from .analyzers import html_strip, tokenize, lemmatize, payload
 from .plugins import load_plugin, get_plugins
 
+#------------------------------------------
+
 def time():
 	return datetime.datetime.now().timestamp() * 1000
+
+#------------------------------------------
 
 pipelines = {
 	"html_strip":html_strip.HTML_Strip,
@@ -18,6 +22,8 @@ pipelines = {
 
 def add_to_pipelines(plugin:dict):
 	pipelines[plugin["name"]] = load_plugin(plugin).Plugin
+
+#------------------------------------------
 
 class Analyzer:
 	def analyze(self, text: str, debug:bool=False) -> str:
@@ -47,6 +53,8 @@ class Analyzer:
 				self.stages.append(pipelines[stage](self.metadata))
 		print(self.metadata)
 
+#------------------------------------------
+
 class Field:
 	def analyze(self,text: str, debug:bool=False) -> str:
 		data,data_debug = self.analyzer.analyze(text,debug=debug)
@@ -56,6 +64,8 @@ class Field:
 		self.source = field["source"]
 		self.target = field["target"]
 		self.analyzer = analyzer
+
+#------------------------------------------
 
 class Pipelines:
 
@@ -80,6 +90,9 @@ class Pipelines:
 			self.fields[field["source"]] = []	
 		self.fields[field["source"]].append(Field(field,analyzer))
 
+	def add_query(self, query:dict):
+		pass
+
 	def __init__(self,config):
 
 		if "model" not in config.keys():
@@ -101,3 +114,7 @@ class Pipelines:
 		self.fields = {}
 		for field in config["fields"]:
 			self.add_field(field)
+
+		self.query = {}
+		for query in config["query"]:
+			self.add_query(query)
