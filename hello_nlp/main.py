@@ -1,5 +1,6 @@
 import os
 import json
+import urllib 
 
 from typing import List, Optional
 
@@ -206,8 +207,18 @@ async def reindex_all_documents(index_name:str) -> dict:
 @app.get('/solr/{index_name}')
 async def solr_query(index_name: str, request: Request):
     #bypass fastAPI and just use starlette to get the querystring
-    uri = skipchunk.uri + index_name + '/select?' + str(request.query_params)
-    query = request.query_params
+    querystring = request.query_params
+    params = []
+    for t in querystring.items():
+        key = t[0]
+        val = t[1]
+        if key in pipelines.queries.keys():
+            print(key,val)
+            val = pipelines.query(key,val)
+            print(key,val)
+        params.append(key+'='+urllib.parse.quote(str(val)))
+    qs = '&'.join(params)
+    uri = skipchunk.uri + index_name + '/select?' + qs
     res = await executor.passthrough(uri)
     return Response(content=res.text, media_type="application/json")
 

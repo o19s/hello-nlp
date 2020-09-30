@@ -67,6 +67,18 @@ class Field:
 
 #------------------------------------------
 
+class Query:
+	def analyze(self,text: str, debug:bool=False) -> str:
+		data,data_debug = self.analyzer.analyze(text,debug=debug)
+		return data,data_debug 
+
+	def __init__(self,query:dict,analyzer:Analyzer):
+		self.source = query["source"]
+		self.target = query["target"]
+		self.analyzer = analyzer
+
+#------------------------------------------
+
 class Pipelines:
 
 	def analyze(self, analyzer:str, text:str, debug:bool=False) -> str:
@@ -81,6 +93,25 @@ class Pipelines:
 				document[field.target] = data
 		return document
 
+	def query(self,key:str,data:str, debug:bool=False) -> dict:
+		if key in self.queries.keys():
+			enrichers = self.queries[key]
+			for enricher in enrichers:
+				data,data_debug = enricher.analyze(data,debug=debug)
+		if isinstance(data,list):
+			data = ' '.join(data)
+		return data
+
+	"""
+	def query(self,params:dict) -> dict:
+		for f in self.queries.keys():
+			queries = self.queries[f]
+			for query in queries:
+				data,data_debug = query.analyze(params[f],debug=debug)
+				params[query.target] = data
+		return params
+	"""
+
 	def add_analyzer(self, analyzer:dict):
 		self.analyzers[analyzer["name"]] = Analyzer(analyzer["pipeline"],self.nlp)
 
@@ -91,7 +122,10 @@ class Pipelines:
 		self.fields[field["source"]].append(Field(field,analyzer))
 
 	def add_query(self, query:dict):
-		pass
+		analyzer = self.analyzers[query["analyzer"]]
+		if query["source"] not in self.queries.keys():
+			self.queries[query["source"]] = []	
+		self.queries[query["source"]].append(Query(query,analyzer))
 
 	def __init__(self,config):
 
@@ -115,6 +149,6 @@ class Pipelines:
 		for field in config["fields"]:
 			self.add_field(field)
 
-		self.query = {}
+		self.queries = {}
 		for query in config["query"]:
 			self.add_query(query)

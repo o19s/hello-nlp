@@ -48,7 +48,7 @@
     "query": [
         {
             "source":"q",
-            "target":"",
+            "target":"q",
             "analyzer":"lemmatizer"
         }
     ]
