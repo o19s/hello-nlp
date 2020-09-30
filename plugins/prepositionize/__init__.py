@@ -1,5 +1,6 @@
 from spacy.tokens import Doc
 from spacy import displacy,util
+import json
 
 ## --------------------------------------
 
@@ -33,14 +34,8 @@ class Plugin():
             data["v"] = pobjs
         return data
 
-    def debug(self,doc:Doc)->dict:
-        preps,pobjs = prepose(doc)
-        text = doc.text
-        data = {"q":text}
-        if 'without' in preps:
-            data["q_param"] = rewrite(text,preps+pobjs)
-            data["v"] = pobjs
-        return data
+    def debug(self,data:dict)->str:
+        return json.dumps(data)
         
     def __init__(self,metadata):
         self.name="prepositionize"
