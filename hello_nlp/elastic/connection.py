@@ -1,3 +1,7 @@
+# Copyright, 2020 Amboss
+# Adopted from https://github.com/amboss-mededu/quepid-es-proxy/
+# MIT License
+
 import os
 from distutils.util import strtobool
 

@@ -79,51 +79,36 @@ Gets the top 100 noun and verb phrases from your graph
 Gets the list of indexes on your Solr or Elasticsearch cluster
 
 ### GET /analyze/{analyzer}
-_Coming soon!_
 
 Analyzes the provided body text in the request with the given ```{analyzer}``` and returns the analyzed output
 
 ### POST /enrich/
-_Coming soon!_
 
 Analyzes a document and its fields according to the configured pipelines and returns the enriched document.  It also saves the enriched document on the service disc for easy reindexing.
 
 ### POST /index/
-_Coming soon!_
 
 Analyzes a document and its fields according to the configured pipelines, returns the enriched document, and sends the enriched document to your Solr or Elasticsearch cluster.  It also saves the enriched document on the service disc for easy reindexing.
 
 ### POST /reindex/
-_Coming soon!_
 
 Re-sends all your enriched documents from the Hello-NLP disc to your Solr or Elasticsearch cluster.  This does not re-enrich the documents!
 
-### Motivations
-Content enrichment in Hello-NLP looks to solve several problems inherent with trying to shoehorn this analysis into a Solr or Elasticsearch plugin.
-
-1. Enrichment happens outside indexing!  A reindex doesn't require re-enrichment, which is often very slow.  You enrich ahead of time, save the document, and reindexing is a breeze.
-2. You are not locked into the rigid Solr/Elastic plugin architecture, with annoying rebuilds and breaking API changes
-3. You can be a Data Scientist or Python developer and avoid Java entirely.
-
-### Why not Anserini?
-
-Anserini is great, but still requires alot of legwork to get going, and usually requires maven and Java.  Hello-NLP is designed to work immediately as a microservice with minimal configuration, deployable via Docker straight to your stack.
-
 ## Query Enrichment API
 
-Hello-NLP's pass-through query API evolved from https://github.com/amboss-mededu/quepid-es-proxy to be compatible with Quepid and Splainer out of the box, and also extended to support Solr.
+Hello-NLP's Query API exposes python NLP enrichment and query rewriting to your existing query parser
 
 ### Motivations
 
-Query enrichment and intent detection should be easier.  You can quickly write your own intent workflows using spaCy, Duckling, regex, or custom business rules in a Python script that you own and control.
+Query enrichment and intent detection should be easier.  You can quickly write your own intent workflows using spaCy, Duckling, regex, or custom business rules in a Python script that you own and control, and then dynamically reference them at querytime.
 
 ### Elasticsearch Support
 
-Just like a regular Elastic QueryDSL request, pass the query json as a body to ```POST /{index_name}/_search```
+Just like a regular Elastic QueryDSL request, pass the query json as a body to ```POST /elastic/{index_name}```
 
 ### Solr Support
-_Coming soon!_
-Just like a regular Solr request but pointed at Hello-NLP, pass your Solr querystrings into ```GET /{index_name}/solr/{request_handler}```
+
+Just like a regular Solr request but pointed at Hello-NLP, pass your Solr querystrings into ```GET /solr/{index_name}?q=...```
 
 ## Autocomplete
 
@@ -189,14 +174,40 @@ It's easy to configure and use an analysis pipeline!  If you've ever written one
 
 ```json
 {
+    "id": "id",
+    "model": "en_core_web_lg",
+    "plugin_path": "./plugins",
     "analyzers": [
         {
             "name":"payloader",
             "pipeline":[
                 "html_strip",
                 "tokenize",
-                "lemmatize",
                 "payload"
+            ]
+        },
+        {
+            "name":"entitizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "entitize"
+            ]
+        },
+        {
+            "name":"lemmatizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "lemmatize"
+            ]
+        },
+        {
+            "name":"prepositionizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "prepositionize"
             ]
         }
     ],
@@ -210,6 +221,18 @@ It's easy to configure and use an analysis pipeline!  If you've ever written one
             "source":"content",
             "target":"content_payloads",
             "analyzer":"payloader"
+        },
+        {
+            "source":"content",
+            "target":"people_ss",
+            "analyzer":"entitizer"
+        }        
+    ],
+    "query": [
+        {
+            "source":"q",
+            "target":"q",
+            "analyzer":"lemmatizer"
         }
     ]
 }

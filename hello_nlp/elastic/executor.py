@@ -1,3 +1,7 @@
+# Copyright, 2020 Amboss, OpenSource Connections
+# Adopted from https://github.com/amboss-mededu/quepid-es-proxy/
+# MIT License
+
 from typing import List, Optional
 
 from .connection import get_connection
