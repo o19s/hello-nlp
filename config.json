@@ -26,6 +26,14 @@
                 "tokenize",
                 "lemmatize"
             ]
+        },
+        {
+            "name":"prepositionizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "prepositionize"
+            ]
         }
     ],
     "fields": [
