@@ -23,7 +23,7 @@
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
     <div class="container">
-      <a class="navbar-brand js-scroll-trigger" href="#"><img src="img/logo_sm.png" border="0" alt="Hello-NLP Logo" width=112 height=60 /></a>
+      <a class="navbar-brand js-scroll-trigger" href="/"><img src="img/logo_sm.png" border="0" alt="Hello-NLP Logo" width=112 height=60 /></a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -42,7 +42,7 @@
             <a class="nav-link js-scroll-trigger" href="/ui/analyze.html">Analyze</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="/ui/analyze.html">Configuration</a>
+            <a class="nav-link js-scroll-trigger" href="/ui/configuration.html">Configuration</a>
           </li>
         </ul>
       </div>
@@ -64,7 +64,7 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-12 mx-auto terms">
-          <h2>Examples</h2>
+          <h2>Solr Examples</h2>
           <ul>
             <li><a target="_blank" href="http://splainer.io/#?solr=http:%2F%2Flocalhost:5050%2Fsolr%2Fosc-blog%3Fq%3Dsearch%20quality%26defType%3Dedismax%26qf%3Dtitle%5E2%20content%20content_payloads%26titlePayloadQuery%3D%7B!payload_score%20f%3Dtitle_payloads%20v%3D$q%20func%3Daverage%7D%26contentPayloadQuery%3D%7B!payload_score%20f%3Dcontent_payloads%20v%3D$q%20func%3Daverage%7D%26bf%3Dproduct($titlePayloadQuery,2.5)%26bf%3Dproduct($contentPayloadQuery,2.5)%26tie%3D0.5%26fl%3Dtitle%20content&fieldSpec=id:id%20title:title%20content">Payload boosting</a></li>
             <li><a target="_blank" href="http://splainer.io/#?solr=http:%2F%2Flocalhost:5050%2Fsolr%2Fosc-blog%3Fq%3Drelevance%20without%20controlling%26fq%3D%7B!hello_nlp%20f%3Dtitle_payloads:$v%20v%3D$q%20analyzer%3Dlemmatizer%7D%26fq%3D%7B!hello_nlp%20f%3D-title:$v%20v%3D$q%20analyzer%3Dprepositionizer%7D%26qf%3Dtitle%5E2%20content%20content_payloads%26titlePayloadQuery%3D%7B!payload_score%20f%3Dtitle_payloads%20v%3D$q%20func%3Dmax%7D%26contentPayloadQuery%3D%7B!payload_score%20f%3Dcontent_payloads%20v%3D$q%20func%3Daverage%7D%26bf%3Dproduct($titlePayloadQuery,2.0)%26bf%3Dproduct($contentPayloadQuery,2.0)%26tie%3D0.5%26defType%3Dedismax%26fl%3Dtitle%20content&fieldSpec=id:id%20title:title%20content">Query rewriting</a></li>

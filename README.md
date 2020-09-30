@@ -102,13 +102,29 @@ Hello-NLP's Query API exposes python NLP enrichment and query rewriting to your 
 
 Query enrichment and intent detection should be easier.  You can quickly write your own intent workflows using spaCy, Duckling, regex, or custom business rules in a Python script that you own and control, and then dynamically reference them at querytime.
 
-### Elasticsearch Support
-
-Just like a regular Elastic QueryDSL request, pass the query json as a body to ```POST /elastic/{index_name}```
-
 ### Solr Support
 
 Just like a regular Solr request but pointed at Hello-NLP, pass your Solr querystrings into ```GET /solr/{index_name}?q=...```
+
+Here's an example of removing negative prepositions using a simple querywriter, inlined as a Solr subquery:
+
+```
+q=shirt without stripes
+&fq={!hello_nlp f=-style:$v v=$q analyzer=prepositionizer}
+```
+
+Will expand to:
+
+```
+q=shirt
+&fq=-style:stripe
+```
+
+### Elasticsearch Support
+
+_coming soon_
+
+Just like a regular Elastic QueryDSL request, pass the query json as a body to ```POST /elastic/{index_name}```
 
 ## Autocomplete
 
