@@ -111,6 +111,8 @@ ENV/
 # IDEs
 .idea/
 
+# Coverage file
+cov.xml
 
 # Application-specific ignores
 # ----------------------------
