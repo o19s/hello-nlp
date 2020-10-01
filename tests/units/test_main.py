@@ -1,42 +1,15 @@
 import pytest
 from asynctest import patch
 
-@pytest.mark.parametrize(
-    "query,expected_query",
-    [(None, None), ({"day": "Friday"}, {"query": {"day": "Friday"}})],
-)
-async def test_search_proxy(environment, query, expected_query):
+
+@pytest.mark.parametrize("engine_name", ["elastic","elasticsearch","es"])
+async def test_explain_missing_documents(monkeypatch, engine_name):
+    monkeypatch.setenv("ENGINE_NAME", engine_name)
 
     from hello_nlp import main
 
     with patch.object(
-        main.executor, "search", return_value={"test": "passed"}
-    ) as search_mock:
-        result = await main.search_proxy(
-            "big-index",
-            body=main.ProxyRequest(
-                **{"explain": True, "from": 3, "size": 7, "query": query}
-            ),
-        )
-
-    assert result == {"test": "passed"}
-    search_mock.assert_awaited_once_with(
-        "big-index",
-        3,
-        7,
-        True,
-        None,
-        expected_query,
-        None,
-    )
-
-
-async def test_explain_missing_documents():
-
-    from hello_nlp import main
-
-    with patch.object(
-        main.executor, "search", return_value={"test": "passed"}
+        main.elastic_executor, "passthrough", return_value={"test": "passed"}
     ) as search_mock:
         result = await main.explain_missing_documents(
             index_name="index-123", _source="_id,title", q="title:Berlin", size=2
@@ -52,7 +25,7 @@ async def test_explain():
     from hello_nlp import main
 
     with patch.object(
-        main.executor, "explain", return_value={"test": "passed again!"}
+        main.elastic_executor, "explain", return_value={"test": "passed again!"}
     ) as explain_mock:
         result = await main.explain(
             index_name="index-123", doc_id="123_321", query={"match": "all"}
