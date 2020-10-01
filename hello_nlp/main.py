@@ -253,7 +253,7 @@ async def explain_missing_documents(
     size: int,
     username: str = Depends(basic_auth),
 ) -> dict:
-    result = await executor.search(
+    result = await executor.passthrough(
         index_name,
         0,
         size,
