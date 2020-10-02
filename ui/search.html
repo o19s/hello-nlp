@@ -63,11 +63,17 @@
   <section id="output">
     <div class="container">
       <div class="row">
-        <div class="col-lg-12 mx-auto terms">
+        <div class="col-lg-6 mx-auto terms">
           <h2>Solr Examples</h2>
           <ul>
             <li><a target="_blank" href="http://splainer.io/#?solr=http:%2F%2Flocalhost:5050%2Fsolr%2Fosc-blog%3Fq%3Dsearch%20quality%26defType%3Dedismax%26qf%3Dtitle%5E2%20content%20content_payloads%26titlePayloadQuery%3D%7B!payload_score%20f%3Dtitle_payloads%20v%3D$q%20func%3Daverage%7D%26contentPayloadQuery%3D%7B!payload_score%20f%3Dcontent_payloads%20v%3D$q%20func%3Daverage%7D%26bf%3Dproduct($titlePayloadQuery,2.5)%26bf%3Dproduct($contentPayloadQuery,2.5)%26tie%3D0.5%26fl%3Dtitle%20content&fieldSpec=id:id%20title:title%20content">Payload boosting</a></li>
             <li><a target="_blank" href="http://splainer.io/#?solr=http:%2F%2Flocalhost:5050%2Fsolr%2Fosc-blog%3Fq%3Drelevance%20without%20controlling%26fq%3D%7B!hello_nlp%20f%3Dtitle_payloads:$v%20v%3D$q%20analyzer%3Dlemmatizer%7D%26fq%3D%7B!hello_nlp%20f%3D-title:$v%20v%3D$q%20analyzer%3Dprepositionizer%7D%26qf%3Dtitle%5E2%20content%20content_payloads%26titlePayloadQuery%3D%7B!payload_score%20f%3Dtitle_payloads%20v%3D$q%20func%3Dmax%7D%26contentPayloadQuery%3D%7B!payload_score%20f%3Dcontent_payloads%20v%3D$q%20func%3Daverage%7D%26bf%3Dproduct($titlePayloadQuery,2.0)%26bf%3Dproduct($contentPayloadQuery,2.0)%26tie%3D0.5%26defType%3Dedismax%26fl%3Dtitle%20content&fieldSpec=id:id%20title:title%20content">Query rewriting</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-6 mx-auto terms">
+          <h2>Elasticsearch Examples</h2>
+          <ul>
+            <li><a target="_blank" href="http://splainer.io/#/es_?esUrl=http:%2F%2Flocalhost:5055%2Felastic%2Fosc-blog&esQuery=%7B%0A%20%20%22query%22:%20%7B%0A%20%20%20%20%22match_phrase%22:%20%7B%0A%20%20%20%20%20%20%22title%22:%20%7B%0A%20%20%20%20%20%20%20%20%22query%22:%20%22search%20relevance%22%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D&fieldSpec=id:id,%20title:title,%20*">Match Phrase</a></li>
           </ul>
         </div>
       </div>

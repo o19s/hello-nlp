@@ -51,35 +51,19 @@
 
   <header class="bg-primary text-white">
     <div class="container text-center">
-      <h1>Exploring <select name="index" id="indexes"></select></h1>
-      <p class="lead">
-        <input type="text" id="search" name="search" size=50 placeholder="Search...">
-      </p>
+      <img src="img/logo.png" border=0 width=100% />
     </div>
   </header>
 
   <section id="configuration">
     <div class="container">
       <div class="row">
-        <div class="col-lg-2 mx-auto terms">
-          <h2>Nouns</h2>
-          <ul id="concepts" class="term-list"></ul>
-        </div>
-        <div class="col-lg-2 mx-auto terms">
-          <h2>Verbs</h2>
-          <ul id="predicates" class="term-list"></ul>
-        </div>
-        <div class="col-lg-8 mx-auto" id="cy" style="height:800px;"></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="configuration">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-8 mx-auto">
-          <h2>Current Configuration</h2>
+        <div class="col-lg-6 mx-auto">
+          <h2>Environment</h2>
           <pre class="lead" id="environment"></pre>
+        </div>
+        <div class="col-lg-6 mx-auto">
+          <h2>Pipeline</h2>
           <pre class="lead" id="pipeline"></pre>
         </div>
       </div>
@@ -111,7 +95,8 @@
   <script src="js/cytoscape.min.js"></script>
 
   <!-- HELLO-NLP -->
-  <script src="js/hello-nlp.js"></script>
+  <!-- <script src="js/hello-nlp.js"></script> -->
+  <script src="js/configuration.js"></script>
 
 
 </body>
