@@ -1,4 +1,4 @@
-# Copyright, 2020 Amboss, OpenSource Connections
+# Copyright, 2020 AMBOSS GmbH, OpenSource Connections
 # Adopted from https://github.com/amboss-mededu/quepid-es-proxy/
 # MIT License
 
