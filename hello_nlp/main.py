@@ -235,6 +235,14 @@ async def elastic_query(index_name: str, request: Request) -> dict:
     return await executor.passthrough(index_name,body)
 
 
+# Search the Elastic core
+@app.post('/elastic_enrich/{index_name}')
+async def enrich_elastic_query(index_name: str, request: Request) -> dict:
+    #bypass fastAPI and just use starlette to get the body
+    body = json.loads(await request.body())
+    return pipelines.elastic_query(body)
+
+
 ## =====================
 ## Quepid/Splainer Proxy
 ## =====================

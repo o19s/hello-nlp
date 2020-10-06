@@ -156,6 +156,47 @@ class Pipelines:
 
         return params
 
+    def elastic_query(self,obj,enrich=False):
+
+        keywords = {"query","match","match_phrase","match_all","should","must","should_not","must_not","filter","bool","term","terms"}
+
+        fields = self.queryfields
+
+        if isinstance(obj,dict):
+            for key in obj.keys():
+                print(key)
+                if (key in fields):
+                    print('fields')
+                    if isinstance(obj[key],str):
+                        print('ANALYZE A')
+                        obj[key] = "ANALYZE::" + obj[key]
+                    else:
+                        print('RECURSE A')
+                        obj[key] = self.elastic_query(obj[key],enrich=True)
+
+                elif key in keywords:
+                    print('KEYWORD')
+                    if isinstance(obj[key],str):
+                        print('ANALYZE B')
+                        obj[key] = "ANALYZE::" + obj[key]
+                    else:
+                        print('RECURSE B')
+                        obj[key] = self.elastic_query(obj[key],enrich=enrich)
+
+        elif isinstance(obj,list):
+            for i in range(len(obj)-1):
+                if isinstance(obj[i],str):
+                    print(i,obj[i])
+                    if (enrich):
+                        print('ANALZE C')
+                        obj[i] = "ANALYZE::" + obj[i]
+                else:
+                    print('RECURSE C')
+                    obj[i] = self.elastic_query(obj[i],enrich=enrich)
+
+        print('DONE')
+        return obj
+
     """
     def query(self,params:dict) -> dict:
         for f in self.queries.keys():
@@ -173,7 +214,10 @@ class Pipelines:
         analyzer = self.analyzers[field["analyzer"]]
         if field["source"] not in self.fields.keys():
             self.fields[field["source"]] = []   
-        self.fields[field["source"]].append(Field(field,analyzer))
+        newfield = Field(field,analyzer)
+        self.fields[field["source"]].append(newfield)
+        self.queryfields.add(newfield.source)
+        self.queryfields.add(newfield.target)
 
     def add_query(self, query:dict):
         analyzer = self.analyzers[query["analyzer"]]
@@ -200,8 +244,11 @@ class Pipelines:
             self.add_analyzer(analyzer)
 
         self.fields = {}
+        self.queryfields = set()
         for field in config["fields"]:
             self.add_field(field)
+
+        print(self.queryfields)
 
         self.queries = {}
         for query in config["query"]:
