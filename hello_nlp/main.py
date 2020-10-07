@@ -206,39 +206,36 @@ async def reindex_all_documents(index_name:str) -> dict:
 # Search the Solr core
 @app.get('/solr/{index_name}')
 async def solr_query(index_name: str, request: Request):
-    #bypass fastAPI and just use starlette to get the querystring
+    #Enriches a Solr query, and execute it against the search engine
     params = pipelines.solr_query(request.query_params)
-    qs = '&'.join(params)
-    """
-    querystring = request.query_params
-    params = []
-    for t in querystring.items():
-        key = t[0]
-        val = t[1]
-        if key in pipelines.queries.keys():
-            print(key,val)
-            val = pipelines.query(key,val)
-            print(key,val)
-        params.append(key+'='+urllib.parse.quote(str(val)))
-    """
-    
+    qs = '&'.join(params)    
     uri = skipchunk.uri + index_name + '/select?' + qs
-    print(uri)
     res = await executor.passthrough(uri)
     return Response(content=res.text, media_type="application/json")
+
+# Enrich a Solr query
+@app.get('/solr_enrich/{index_name}')
+async def enrich_solr_query(index_name: str, request: Request) -> str:
+    #Enriches a Solr query and returns it to the client without executing
+    params = pipelines.solr_query(request.query_params)
+    qs = '&'.join(params)    
+    uri = skipchunk.uri + index_name + '/select?' + qs
+    return uri
+
 
 # Search the Elastic core
 @app.post('/elastic/{index_name}')
 async def elastic_query(index_name: str, request: Request) -> dict:
-    #bypass fastAPI and just use starlette to get the body
+    #Enriches an Elastic QueryDSL request, and query the search engine
     body = json.loads(await request.body())
-    return await executor.passthrough(index_name,body)
+    enriched = pipelines.elastic_query(body)
+    return await executor.passthrough(index_name,enriched)
 
 
-# Search the Elastic core
+# Enrich an Elastic query
 @app.post('/elastic_enrich/{index_name}')
 async def enrich_elastic_query(index_name: str, request: Request) -> dict:
-    #bypass fastAPI and just use starlette to get the body
+    #Enriches an Elastic QueryDSL request and returns it to the client without executing
     body = json.loads(await request.body())
     return pipelines.elastic_query(body)
 

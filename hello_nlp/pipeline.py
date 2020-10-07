@@ -168,7 +168,7 @@ class Pipelines:
                     if isinstance(obj[key],str):
                         #print('ANALYZE A')
                         data,_ = self.query_analyzer.analyze(obj[key],debug=False)
-                        obj[key] = data
+                        obj[key] = str(data)
                     else:
                         #print('RECURSE A')
                         obj[key] = self.elastic_query(obj[key],enrich=key)
@@ -180,7 +180,7 @@ class Pipelines:
                         if isinstance(enrich,str):
                             #print('ANALYZE B')
                             data,_ = self.query_analyzer.analyze(obj[key],debug=False)
-                            obj[key] = data
+                            obj[key] = str(data)
                     else:
                         #print('RECURSE B')
                         obj[key] = self.elastic_query(obj[key],enrich=enrich)
@@ -192,7 +192,7 @@ class Pipelines:
                     if (enrich):
                         #print('ANALZE C')
                         data,_ = self.query_analyzer.analyze(obj[i],debug=False)
-                        obj[i] = data
+                        obj[i] = str(data)
                 else:
                     #print('RECURSE C')
                     obj[i] = self.elastic_query(obj[i],enrich=enrich)
