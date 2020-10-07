@@ -1,0 +1,9 @@
+{
+  "query": {
+    "match_phrase": {
+      "title": {
+        "query": "I saw Eric at the conferences."
+      }
+    }
+  }
+}
