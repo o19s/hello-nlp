@@ -156,45 +156,48 @@ class Pipelines:
 
         return params
 
-    def elastic_query(self,obj,enrich=False):
+    def elastic_query(self,obj,enrich=None):
 
         keywords = {"query","match","match_phrase","match_all","should","must","should_not","must_not","filter","bool","term","terms"}
 
-        fields = self.queryfields
-
         if isinstance(obj,dict):
             for key in obj.keys():
-                print(key)
-                if (key in fields):
-                    print('fields')
+                #print(key)
+                if (key in self.queryfields):
+                    #print('fields')
                     if isinstance(obj[key],str):
-                        print('ANALYZE A')
-                        obj[key] = "ANALYZE::" + obj[key]
+                        #print('ANALYZE A')
+                        data,_ = self.query_analyzer.analyze(obj[key],debug=False)
+                        obj[key] = data
                     else:
-                        print('RECURSE A')
-                        obj[key] = self.elastic_query(obj[key],enrich=True)
+                        #print('RECURSE A')
+                        obj[key] = self.elastic_query(obj[key],enrich=key)
 
                 elif key in keywords:
-                    print('KEYWORD')
+                    #print('KEYWORD')
                     if isinstance(obj[key],str):
-                        print('ANALYZE B')
-                        obj[key] = "ANALYZE::" + obj[key]
+                        #print(obj[key])
+                        if isinstance(enrich,str):
+                            #print('ANALYZE B')
+                            data,_ = self.query_analyzer.analyze(obj[key],debug=False)
+                            obj[key] = data
                     else:
-                        print('RECURSE B')
+                        #print('RECURSE B')
                         obj[key] = self.elastic_query(obj[key],enrich=enrich)
 
         elif isinstance(obj,list):
             for i in range(len(obj)-1):
                 if isinstance(obj[i],str):
-                    print(i,obj[i])
+                    #print(i,obj[i])
                     if (enrich):
-                        print('ANALZE C')
-                        obj[i] = "ANALYZE::" + obj[i]
+                        #print('ANALZE C')
+                        data,_ = self.query_analyzer.analyze(obj[i],debug=False)
+                        obj[i] = data
                 else:
-                    print('RECURSE C')
+                    #print('RECURSE C')
                     obj[i] = self.elastic_query(obj[i],enrich=enrich)
 
-        print('DONE')
+        #print('DONE')
         return obj
 
     """
@@ -248,8 +251,13 @@ class Pipelines:
         for field in config["fields"]:
             self.add_field(field)
 
-        print(self.queryfields)
-
         self.queries = {}
         for query in config["query"]:
             self.add_query(query)
+
+
+        if len(config["query"])>0:
+            self.query_analyzer = self.analyzers[config["query"][0]["analyzer"]]
+        else:
+            self.query_analyzer = self.analyzers["lemmatizer"]
+
