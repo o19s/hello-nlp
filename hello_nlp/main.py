@@ -157,6 +157,10 @@ async def analyze_body(analyzer: str, body: AnalyzeRequest) -> dict:
 class IndexableDocument(BaseModel):
     doc:Optional[dict]
 
+class IndexableDocuments(BaseModel):
+    docs:Optional[list]
+
+
 @app.post('/enrich/{index_name}')
 async def enrich_document(index_name:str, document: IndexableDocument) -> dict:
     try:
@@ -183,6 +187,25 @@ async def index_document(index_name:str, document: IndexableDocument) -> dict:
         iq.indexDocument(enriched)
         saveDocument(docid,enriched,iq.engine.document_data)
         res = enriched
+    except ValueError as e:
+        print(e)
+        res = {"error":e}
+    return res
+
+@app.post('/bulk/{index_name}')
+async def bulk_index_documents(index_name:str, document: IndexableDocuments) -> dict:
+    try:
+        iq = skipchunk.index_connect(index_name)
+        idfield = config_json["id"]
+        docs = document.docs
+        enriched = []
+        for doc in docs:
+            docid = doc[idfield]
+            analyzed = pipelines.enrich(doc)
+            enriched.append(analyzed)
+            saveDocument(docid,analyzed,iq.engine.document_data)
+        iq.indexGenerator(enriched)
+        res = {"success":True,"total":len(enriched)}
     except ValueError as e:
         print(e)
         res = {"error":e}
