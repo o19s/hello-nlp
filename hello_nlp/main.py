@@ -53,10 +53,10 @@ app.add_middleware(
 with open('config.json','r') as fd:
     config_json = json.load(fd)
     pipelines = Pipelines(config_json)
-    #pipelines = {}
 
 @app.get('/')
 async def index():
+    """Redirects to the ui index.html page"""
     return RedirectResponse("/ui/index.html")
 
 @app.get('/environment')
@@ -79,41 +79,32 @@ async def show_pipeline() -> dict:
     """Shows the config.json pipeline loaded for the Hello-NLP instance"""
     return config_json
 
-# Suggest is our AJAX call for typeahead
 @app.get('/suggest/{index_name}')
 async def suggest(
     index_name: str, query: str
 ) -> dict:
+    """Provides autocomplete suggestions, given a query prefix and graph index name"""
     gq = skipchunk.graph_connect(index_name)
     suggestions = gq.suggestConcepts(query)
     return {'suggestions':suggestions}
 
-# Cores is our AJAX call for core lists
 @app.get('/indexes')
 async def indexes() -> dict:
+    """Gets the list of search graph indexes"""
     indexes = skipchunk.gq.indexes()
     return {'indexes':indexes}
 
-# Cores is our AJAX call for summarizing an index
 @app.get('/indexes/{index_name}')
 async def index_summarize(index_name: str) -> dict:
+    """Returns the top concepts and predicates for the given graph index"""
     gq = skipchunk.graph_connect(index_name)
     concepts,predicates = gq.summarize()
     return {'concepts':concepts,'predicates':predicates}
 
 @app.get('/graph/{index_name}')
 async def graph(index_name: str, subject: str) -> list:
+    """Returnsthe graph walk for a subject term"""
     gq = skipchunk.graph_connect(index_name)
-    """
-    if "objects" in request.args.keys():
-        objects = int(request.args["objects"])
-    else:
-        objects = 5
-    if "branches" in request.args.keys():
-        branches = int(request.args["branches"])
-    else:
-        branches = 10
-    """
     objects = 5
     branches = 10
     tree = gq.graph(subject,objects=objects,branches=branches)
@@ -121,8 +112,8 @@ async def graph(index_name: str, subject: str) -> list:
 
 @app.get('/analyzers')
 async def analyzers() -> dict:
+    """Returns a list of analyzers as provided in config.json"""
     try:
-        #data = [{'name':a} for a in pipelines.analyzers.keys()]
         data = list(pipelines.analyzers.keys())
         res = {'data':data}
     except ValueError as e:
@@ -132,6 +123,7 @@ async def analyzers() -> dict:
 
 @app.get('/analyze/{analyzer}')
 async def analyze_text(analyzer: str, text: str, debug:bool=False) -> dict:
+    """Analyzes the provided querystring text with the given analyzer"""
     try:
         data, data_debug = pipelines.analyze(analyzer,text,debug=debug)
         res = {"data":str(data),"debug":data_debug}
@@ -145,6 +137,7 @@ class AnalyzeRequest(BaseModel):
 
 @app.post('/analyze/{analyzer}')
 async def analyze_body(analyzer: str, body: AnalyzeRequest) -> dict:
+    """Analyzes the provided body text with the given analyzer"""
     try:
         data, data_debug = pipelines.analyze(analyzer,body.text,debug=debug)
         res = {"data":str(data),"debug":data_debug}
@@ -163,6 +156,7 @@ class IndexableDocuments(BaseModel):
 
 @app.post('/enrich/{index_name}')
 async def enrich_document(index_name:str, document: IndexableDocument) -> dict:
+    """Enriches a document based on the field analysis as provided in config.json, saves the enriched document to disk, and returns the enriched document."""
     try:
         doc = document.doc
         enriched = pipelines.enrich(doc)
@@ -178,6 +172,7 @@ async def enrich_document(index_name:str, document: IndexableDocument) -> dict:
 
 @app.post('/index/{index_name}')
 async def index_document(index_name:str, document: IndexableDocument) -> dict:
+    """Enriches a document based on the field analysis as provided in config.json, saves the enriched document to disk, and indexes the document in the search engine."""
     try:
         doc = document.doc
         enriched = pipelines.enrich(doc)
@@ -194,6 +189,9 @@ async def index_document(index_name:str, document: IndexableDocument) -> dict:
 
 @app.post('/bulk/{index_name}')
 async def bulk_index_documents(index_name:str, document: IndexableDocuments) -> dict:
+    """Bulk enriches the provided documents based on the field analysis as provided in config.json, saves the enriched documents to disk, and indexes the documents in the search engine.
+       WARNING! Using the bulk operation will monopolize the service and block other calls.  It is recommended that bulk processing be done on a dedicated container.
+    """
     try:
         iq = skipchunk.index_connect(index_name)
         idfield = config_json["id"]
@@ -213,6 +211,9 @@ async def bulk_index_documents(index_name:str, document: IndexableDocuments) -> 
 
 @app.post('/reindex/{index_name}')
 async def reindex_all_documents(index_name:str) -> dict:
+    """Sends all enriched documents on disk for indexing into the search engine.
+       NOTE: this does NOT re-enrich the documents!
+    """
     try:
         iq = skipchunk.index_connect(index_name)
         iq.indexGenerator(indexableDocuments(iq.engine.document_data))
@@ -229,7 +230,7 @@ async def reindex_all_documents(index_name:str) -> dict:
 # Search the Solr core
 @app.get('/solr/{index_name}')
 async def solr_query(index_name: str, request: Request):
-    #Enriches a Solr query, and execute it against the search engine
+    """Enriches a Solr query, and execute it against the search engine"""
     params = pipelines.solr_query(request.query_params)
     qs = '&'.join(params)    
     uri = skipchunk.uri + index_name + '/select?' + qs
@@ -239,7 +240,7 @@ async def solr_query(index_name: str, request: Request):
 # Enrich a Solr query
 @app.get('/solr_enrich/{index_name}')
 async def enrich_solr_query(index_name: str, request: Request) -> str:
-    #Enriches a Solr query and returns it to the client without executing
+    """Enriches a Solr query and returns it to the client without executing"""
     params = pipelines.solr_query(request.query_params)
     qs = '&'.join(params)    
     uri = skipchunk.uri + index_name + '/select?' + qs
@@ -249,7 +250,7 @@ async def enrich_solr_query(index_name: str, request: Request) -> str:
 # Search the Elastic core
 @app.post('/elastic/{index_name}')
 async def elastic_query(index_name: str, request: Request) -> dict:
-    #Enriches an Elastic QueryDSL request, and query the search engine
+    """Enriches an Elastic QueryDSL request, and query the search engine"""
     body = json.loads(await request.body())
     enriched = pipelines.elastic_query(body)
     return await executor.passthrough(index_name,enriched)
@@ -258,7 +259,7 @@ async def elastic_query(index_name: str, request: Request) -> dict:
 # Enrich an Elastic query
 @app.post('/elastic_enrich/{index_name}')
 async def enrich_elastic_query(index_name: str, request: Request) -> dict:
-    #Enriches an Elastic QueryDSL request and returns it to the client without executing
+    """Enriches an Elastic QueryDSL request and returns it to the client without executing"""
     body = json.loads(await request.body())
     return pipelines.elastic_query(body)
 
@@ -270,7 +271,7 @@ async def enrich_elastic_query(index_name: str, request: Request) -> dict:
 
 @app.get("/healthcheck")
 async def health_check():
-    """Health check"""
+    """Quepid health check call, just say 'yes' :)"""
     return {"status": "OK"}
 
 @app.get("/explain/{index_name}")
@@ -281,6 +282,7 @@ async def explain_missing_documents(
     size: int,
     username: str = Depends(basic_auth),
 ) -> dict:
+    """Quepid explain missing documents query for Solr"""
     result = await executor.passthrough(
         index_name,
         0,
@@ -299,4 +301,5 @@ async def explain(
     query: dict,
     username: str = Depends(basic_auth),
 ) -> dict:
+    """Quepid explain missing documents query for Elasticsearch"""
     return await executor.explain(index_name, doc_id, query)

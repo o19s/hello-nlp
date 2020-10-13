@@ -166,9 +166,7 @@ Uses SpaCy to tokenize and tag text that can be used later in the analysis chain
 
 ### entity extraction
 
-_(coming soon!)_
-
-Copies text-embedded entities of specific classes to other fields, for faceting and filtering
+Copies text-embedded entities of specific classes to other fields, for faceting and filtering.  Currently offered as an example plugin.
 
 ### vectorization
 
@@ -253,3 +251,28 @@ It's easy to configure and use an analysis pipeline!  If you've ever written one
     ]
 }
 ```
+
+## Plugins
+
+While Hello-NLP offers core analyzers out of the box, there are lots of things you might want to do to meet your own search use cases.  Plugins are the same thing as analyzers, but you write and maintain them yourself.
+
+It's easy to make a plugin, but there are some important conventions you must follow.
+
+* Plugins must be placed in ```plugin_path``` that you reference in your ```config.json``` file.
+* Each plugin consists of a folder bearing the same name as the plugin.  For example, a plugin named "peoplizer" must be in the path ```plugin_path/peoplizer/```
+* The source of the plugin must be in a file named ```__init__.py``` and be placed in the root of the plugin's folder.  Following the same example above: ```plugin_path/peoplizer/__init__.py```
+
+In the code of the plugin's ```__init__.py``` file, the following are required:
+
+* There must be a class and the name must be 'Plugin'
+* The parent folder name must match self.name of the Plugin class, which is set during object instantiation.
+* The Plugin class must implement the 'analyze' method
+* The Plugin class must implement the 'debug' method
+
+Use duck typing to chain plugins and analyzers together in your pipelines!
+
+* Each plugin or analyzer accepts one variable and outputs returns variable
+* The input object MUST match the type (or be implicitly castable) of the output of the plugin/analyzer in the previous stage
+* The output object MUST be consumable as input by the following plugin/analyzer stage
+
+There are a couple example plugins already to get you started, in the ```./plugins``` folder of this repo.  Feel free to copy and modify them to suit your needs!
