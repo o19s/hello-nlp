@@ -4,8 +4,14 @@ from spacy import displacy
 
 class Tokenizer(Text_to_Doc_PipelineInterface):
 
+	def tokenize(self,text:str)->Doc:
+		docs = None
+		for doc in self.pipeline["nlp"].pipe([text]):
+			docs = doc
+		return docs
+
 	def analyze(self,text:str)->Doc:
-		return self.pipeline["nlp"](text)
+		return self.tokenize(text)
 
 	def debug(self,doc:Doc)->str:
 		svgs = []
