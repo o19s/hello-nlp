@@ -1,6 +1,6 @@
 {
     "id": "id",
-    "model": "en_core_web_lg",
+    "model": "en_core_web_sm",
     "plugin_path": "./plugins",
     "analyzers": [
         {
@@ -33,6 +33,14 @@
                 "html_strip",
                 "tokenize",
                 "prepositionize"
+            ]
+        },
+        {
+            "name":"vectorizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "vectorize"
             ]
         }
     ],
