@@ -1,6 +1,7 @@
 fastapi==0.61.1
 uvicorn==0.11.8
 asynctest==0.13.0
+python-dotenv==0.14.0
 pytest==6.0.2
 pytest-cov==2.10.1
 pytest-aiohttp==0.3.0
@@ -14,4 +15,5 @@ spacy==2.3.2
 bs4==0.0.1
 lxml==4.5.2
 httpx==0.15.4
+sentence-transformers==0.3.8
 skipchunk>=0.9.10

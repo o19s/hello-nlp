@@ -59,7 +59,12 @@
             "source":"content",
             "target":"people_ss",
             "analyzer":"entitizer"
-        }        
+        },
+        {
+            "source":"title",
+            "target":"title_vector",
+            "analyzer":"vectorizer"
+        }
     ],
     "query": [
         {

@@ -1,29 +1,6 @@
-import base64
 import numpy as np
 from spacy.tokens import Doc
-
-def quantize(data,scale):
-    data = data.astype(np.float32) / scale # normalize the data
-    norm = 255 * data # Now scale by 255
-    norm = norm.astype(np.int8) # Cast to signed integer
-    b64e = base64.b64encode(norm) # Encode it
-    return b64e
-
-def extract_vectors(doc:Doc) -> list:
-    vecs = []
-    scale = -999999.00
-    for span in doc.sents:
-        if span.has_vector:
-            v = span.vector
-            m = max(v)
-            i = abs(min(v))
-            if m>scale:
-                scale = m
-            if i>scale:
-                scale = i
-            vecs.append(v)
-    quantized = [quantize(v,scale) for v in vecs]
-    return quantized
+from sentence_transformers import SentenceTransformer
 
 ## --------------------------------------
 
@@ -39,14 +16,20 @@ def extract_vectors(doc:Doc) -> list:
 class Plugin():
 
     def analyze(self,doc:Doc)->list:
-        vectors = extract_vectors(doc)
-        return vectors
+        #This example only analyzes the first sentence of the document
+        #Dense Vector fields in Elastic/Solr are not multivalued
+        #When you use this in real life, distill all sentences down to one vector
+        sentence = [span.text for span in doc.sents][0]
+        embeddings = self.model.encode([sentence])
+        vector = [embedding.tolist() for embedding in embeddings][0]
+        return vector
 
-    def debug(self,vectors:list)->list:
-        return vectors
+    def debug(self,vector:list)->list:
+        return vector
         
     def __init__(self,metadata):
         self.name="vectorize"
         self.pipeline = metadata
         self.pipeline[self.name] = True
         self.index = None
+        self.model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
