@@ -3,12 +3,17 @@ import spacy
 import re
 import urllib
 
+import json
+
 from html import escape
 
 from .analyzers import html_strip, tokenize, lemmatize, payload
 from .plugins import load_plugin, get_plugins
 
 from .query import queryparser
+
+#from .elastic import parser as elastic_parser
+#from .solr import parser as solr_parser
 
 #------------------------------------------
 
@@ -158,31 +163,40 @@ class Pipelines:
 
     def elastic_query(self,obj,enrich=None):
 
-        keywords = {"query","match","match_phrase","match_all","should","must","should_not","must_not","filter","bool","term","terms"}
+        keywords = {"query","match","match_phrase","match_all","should","must","should_not","must_not","filter","bool","term","terms","script_score","params","script"}
 
         if isinstance(obj,dict):
+
             for key in obj.keys():
                 #print(key)
-                if (key in self.queryfields):
-                    #print('fields')
+
+                if key == "!hello_nlp":
+                    name = obj[key]["name"]
+                    value = obj[key]["value"]
+                    analyzer = obj[key]["analyzer"]
+                    analyzed = self.analyzers[analyzer].analyze(value,debug=False)
+                    return {name:analyzed[0]}
+
+                elif (key in self.queryfields):
+                    print('fields')
                     if isinstance(obj[key],str):
-                        #print('ANALYZE A')
+                        print('ANALYZE A')
                         data,_ = self.query_analyzer.analyze(obj[key],debug=False)
                         obj[key] = str(data)
                     else:
-                        #print('RECURSE A')
+                        print('RECURSE A')
                         obj[key] = self.elastic_query(obj[key],enrich=key)
 
                 elif key in keywords:
-                    #print('KEYWORD')
+                    print('KEYWORD')
                     if isinstance(obj[key],str):
-                        #print(obj[key])
+                        print(obj[key])
                         if isinstance(enrich,str):
-                            #print('ANALYZE B')
+                            print('ANALYZE B')
                             data,_ = self.query_analyzer.analyze(obj[key],debug=False)
                             obj[key] = str(data)
                     else:
-                        #print('RECURSE B')
+                        print('RECURSE B')
                         obj[key] = self.elastic_query(obj[key],enrich=enrich)
 
         elif isinstance(obj,list):
@@ -198,6 +212,7 @@ class Pipelines:
                     obj[i] = self.elastic_query(obj[i],enrich=enrich)
 
         #print('DONE')
+        print(json.dumps(obj,indent=2))
         return obj
 
     """
