@@ -178,25 +178,25 @@ class Pipelines:
                     return {name:analyzed[0]}
 
                 elif (key in self.queryfields):
-                    print('fields')
+                    #print('fields')
                     if isinstance(obj[key],str):
-                        print('ANALYZE A')
+                        #print('ANALYZE A')
                         data,_ = self.query_analyzer.analyze(obj[key],debug=False)
                         obj[key] = str(data)
                     else:
-                        print('RECURSE A')
+                        #print('RECURSE A')
                         obj[key] = self.elastic_query(obj[key],enrich=key)
 
                 elif key in keywords:
-                    print('KEYWORD')
+                    #print('KEYWORD')
                     if isinstance(obj[key],str):
-                        print(obj[key])
+                        #print(obj[key])
                         if isinstance(enrich,str):
-                            print('ANALYZE B')
+                            #print('ANALYZE B')
                             data,_ = self.query_analyzer.analyze(obj[key],debug=False)
                             obj[key] = str(data)
                     else:
-                        print('RECURSE B')
+                        #print('RECURSE B')
                         obj[key] = self.elastic_query(obj[key],enrich=enrich)
 
         elif isinstance(obj,list):
@@ -212,7 +212,7 @@ class Pipelines:
                     obj[i] = self.elastic_query(obj[i],enrich=enrich)
 
         #print('DONE')
-        print(json.dumps(obj,indent=2))
+        #print(json.dumps(obj,indent=2))
         return obj
 
     """
