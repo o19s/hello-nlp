@@ -3,12 +3,17 @@ import spacy
 import re
 import urllib
 
+import json
+
 from html import escape
 
 from .analyzers import html_strip, tokenize, lemmatize, payload
 from .plugins import load_plugin, get_plugins
 
 from .query import queryparser
+
+#from .elastic import parser as elastic_parser
+#from .solr import parser as solr_parser
 
 #------------------------------------------
 
@@ -158,12 +163,21 @@ class Pipelines:
 
     def elastic_query(self,obj,enrich=None):
 
-        keywords = {"query","match","match_phrase","match_all","should","must","should_not","must_not","filter","bool","term","terms"}
+        keywords = {"query","match","match_phrase","match_all","should","must","should_not","must_not","filter","bool","term","terms","script_score","params","script","rescore","rescore_query","function_score"}
 
         if isinstance(obj,dict):
+
             for key in obj.keys():
                 #print(key)
-                if (key in self.queryfields):
+
+                if key == "!hello_nlp":
+                    name = obj[key]["name"]
+                    value = obj[key]["value"]
+                    analyzer = obj[key]["analyzer"]
+                    analyzed = self.analyzers[analyzer].analyze(value,debug=False)
+                    return {name:analyzed[0]}
+
+                elif (key in self.queryfields):
                     #print('fields')
                     if isinstance(obj[key],str):
                         #print('ANALYZE A')
@@ -198,6 +212,7 @@ class Pipelines:
                     obj[i] = self.elastic_query(obj[i],enrich=enrich)
 
         #print('DONE')
+        #print(json.dumps(obj,indent=2))
         return obj
 
     """

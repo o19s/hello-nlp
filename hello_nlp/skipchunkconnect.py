@@ -4,7 +4,7 @@ from skipchunk.enrichquery import EnrichQuery
 
 class Connect:
 
-    def __init__(self,use_ssl,host,port,index,engine_name,path):
+    def __init__(self,use_ssl,host,port,index,engine_name,path,model):
 
         uri = ""
 
@@ -22,13 +22,14 @@ class Connect:
             "host":uri,
             "name":index,
             "engine_name":engine_name,
-            "path":path
+            "path":path,
+            "model":model
 
         }
 
         self.uri = uri
 
-        self.eq = EnrichQuery(model='en_core_web_lg')
+        self.eq = EnrichQuery(model=model)
         self.iq = IndexQuery(self.config,enrich_query=self.eq)
         self.gq = GraphQuery(self.config)
 

@@ -15,9 +15,15 @@ async def passthrough(index_name:str, body:dict):
         "from_": body["from"],
         "size": body["size"],
         "explain": body["explain"],
-        "_source": body["_source"],
-        "body": query
+        "_source": body["_source"]
     }
+
+    body.pop("from")
+    body.pop("size")
+    body.pop("explain")
+    body.pop("_source")
+
+    payload["body"] = body
 
     r = conn.search(
         index=index_name,

@@ -6,7 +6,7 @@ def saveDocument(docid,doc,path):
         os.makedirs(path)
 
     filename = path + '/' + docid + '.json'
-    with open(filename,'w') as fd:
+    with open(filename,'w',encoding='utf-8') as fd:
         json.dump(doc, fd)
 
 def indexableDocuments(path):

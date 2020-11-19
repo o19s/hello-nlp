@@ -1,6 +1,6 @@
 {
     "id": "id",
-    "model": "en_core_web_lg",
+    "model": "en_core_web_sm",
     "plugin_path": "./plugins",
     "analyzers": [
         {
@@ -34,6 +34,14 @@
                 "tokenize",
                 "prepositionize"
             ]
+        },
+        {
+            "name":"vectorizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "vectorize"
+            ]
         }
     ],
     "fields": [
@@ -51,7 +59,12 @@
             "source":"content",
             "target":"people_ss",
             "analyzer":"entitizer"
-        }        
+        },
+        {
+            "source":"title",
+            "target":"title_vector",
+            "analyzer":"vectorizer"
+        }
     ],
     "query": [
         {

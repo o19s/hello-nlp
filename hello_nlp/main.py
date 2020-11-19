@@ -24,13 +24,19 @@ app = FastAPI()
 
 app.mount("/ui/", StaticFiles(directory="ui"), name="ui")
 
+with open('config.json','r') as fd:
+    config_json = json.load(fd)
+
+pipelines = Pipelines(config_json)
+
 skipchunk = Connect(
     os.environ["ENGINE_USE_SSL"],
     os.environ["ENGINE_HOST"],
     os.environ["ENGINE_PORT"],
     os.environ["APP_NAME"],
     os.environ["ENGINE_NAME"],
-    os.environ["DOCUMENTS_PATH"])
+    os.environ["DOCUMENTS_PATH"],
+    config_json["model"])
 
 if os.environ["ENGINE_NAME"] in ["solr"]:
     executor = solr_executor
@@ -48,11 +54,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-with open('config.json','r') as fd:
-    config_json = json.load(fd)
-    pipelines = Pipelines(config_json)
 
 @app.get('/')
 async def index():
