@@ -163,7 +163,7 @@ class Pipelines:
 
     def elastic_query(self,obj,enrich=None):
 
-        keywords = {"query","match","match_phrase","match_all","should","must","should_not","must_not","filter","bool","term","terms","script_score","params","script"}
+        keywords = {"query","match","match_phrase","match_all","should","must","should_not","must_not","filter","bool","term","terms","script_score","params","script","rescore","rescore_query","function_score"}
 
         if isinstance(obj,dict):
 
