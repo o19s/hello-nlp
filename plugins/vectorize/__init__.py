@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from spacy.tokens import Doc
 from sentence_transformers import SentenceTransformer
@@ -32,4 +33,10 @@ class Plugin():
         self.pipeline = metadata
         self.pipeline[self.name] = True
         self.index = None
-        self.model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
+
+        self.cuda=os.environ["CUDA"]
+        print('CUDAAA!',self.cuda)
+        self.device = 'cpu'
+        if self.cuda:
+            self.device='cuda'
+        self.model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens',device=self.device)
