@@ -35,8 +35,9 @@ class Plugin():
         self.index = None
 
         self.cuda=os.environ["CUDA"]
-        print('CUDAAA!',self.cuda)
-        self.device = 'cpu'
-        if self.cuda:
+        self.device='cpu'
+        if self.cuda=='true':
             self.device='cuda'
+
+        #To use CUDA on your system/container, set CUDA=true in /hello-nlp/config.json
         self.model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens',device=self.device)
