@@ -1,6 +1,6 @@
 {
     "id": "id",
-    "model": "en_core_web_sm",
+    "model": "en_core_web_lg",
     "plugin_path": "./plugins",
     "analyzers": [
         {
