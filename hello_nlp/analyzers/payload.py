@@ -48,7 +48,7 @@ _DEP_SCORES_ = {
 
 class Payloader(Doc_to_Text_PipelineInterface):
 
-	def analyze(self, doc: Doc) -> str:
+	def analyze(self, doc:Doc, context:dict=None) -> str:
 		
 		sentences = []
 
@@ -86,7 +86,7 @@ class Payloader(Doc_to_Text_PipelineInterface):
 
 		return sentences
 
-	def debug(self,text:str) -> str:
+	def debug(self,text:str,context:dict=None) -> str:
 		return text
 
 	def __init__(self,metadata,delimiter='|',pos_scores=_POS_SCORES_,dep_scores=_DEP_SCORES_):

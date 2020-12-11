@@ -13,34 +13,34 @@ from spacy.tokens import Doc, Span
 
 class Text_to_Text_PipelineInterface(ABC):
     @abstractmethod
-    def analyze(self,text:str)->str:
+    def analyze(self,text:str,context:dict=None)->str:
         pass
     @abstractmethod
-    def debug(self,text:str)->str:
+    def debug(self,text:str,context:dict=None)->str:
         pass
 
 
 class Text_to_Doc_PipelineInterface(ABC):
     @abstractmethod
-    def analyze(self,text:str)->Doc:
+    def analyze(self,text:str,context:dict=None)->Doc:
         pass
     @abstractmethod
-    def debug(self,doc:Doc)->str:
+    def debug(self,doc:Doc,context:dict=None)->str:
         pass
 
 class Doc_to_Doc_PipelineInterface(ABC):
     @abstractmethod
-    def analyze(self,doc:Doc)->Doc:
+    def analyze(self,doc:Doc,context:dict=None)->Doc:
         pass
     @abstractmethod
-    def debug(self,doc:Doc)->str:
+    def debug(self,doc:Doc,context:dict=None)->str:
         pass
 
 
 class Doc_to_Text_PipelineInterface(ABC):
     @abstractmethod
-    def analyze(self,doc:Doc)->str:
+    def analyze(self,doc:Doc,context:dict=None)->str:
         pass
     @abstractmethod
-    def debug(self,text:str)->str:
+    def debug(self,text:str,context:dict=None)->str:
         pass

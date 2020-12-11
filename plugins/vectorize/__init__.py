@@ -15,7 +15,7 @@ from sentence_transformers import SentenceTransformer
 
 class Plugin():
 
-    def analyze(self,doc:Doc)->list:
+    def analyze(self,doc:Doc,context:dict=None)->list:
         #This example only analyzes the first sentence of the document
         #Dense Vector fields in Elastic/Solr are not multivalued
         #When you use this in real life, distill all sentences down to one vector
@@ -24,7 +24,7 @@ class Plugin():
         vector = [embedding.tolist() for embedding in embeddings][0]
         return vector
 
-    def debug(self,vector:list)->list:
+    def debug(self,vector:list,context:dict=None)->list:
         return vector
         
     def __init__(self,metadata):

@@ -25,7 +25,7 @@ def prepose(doc):
 
 class Plugin():
 
-    def analyze(self,doc:Doc)->dict:
+    def analyze(self,doc:Doc,context:dict=None)->dict:
         preps,pobjs = prepose(doc)
         text = doc.text
         data = {"q":text}
@@ -34,7 +34,7 @@ class Plugin():
             data["v"] = pobjs
         return data
 
-    def debug(self,data:dict)->str:
+    def debug(self,data:dict,context:dict=None)->str:
         return json.dumps(data)
         
     def __init__(self,metadata):

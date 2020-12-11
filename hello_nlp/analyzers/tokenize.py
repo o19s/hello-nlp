@@ -10,10 +10,10 @@ class Tokenizer(Text_to_Doc_PipelineInterface):
 			docs = doc
 		return docs
 
-	def analyze(self,text:str)->Doc:
+	def analyze(self,text:str,context:dict=None)->Doc:
 		return self.tokenize(text)
 
-	def debug(self,doc:Doc)->str:
+	def debug(self,doc:Doc,context:dict=None)->str:
 		svgs = []
 		for sent in doc.sents:
 			svgs.append(displacy.render(sent, style="dep", jupyter=False))

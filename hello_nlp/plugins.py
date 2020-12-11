@@ -5,9 +5,9 @@ MainModule = "__init__"
 
 def get_plugins(root):
     plugins = []
-    possible = os.listdir(root)
+    candidates = os.listdir(root)
     filename = MainModule + ".py"
-    for i in possible:
+    for i in candidates:
         location = os.path.join(root, i)
         if not os.path.isdir(location) or not filename in os.listdir(location):
             continue
