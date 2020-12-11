@@ -11,7 +11,7 @@ _POS_LEMMA_ = {
 }
 
 class Lemmatizer(Doc_to_Doc_PipelineInterface):
-	def analyze(self,doc: Doc):
+	def analyze(self,doc:Doc,context:dict=None):
 
 		if not self.is_last_stage:
 			return doc
@@ -32,7 +32,7 @@ class Lemmatizer(Doc_to_Doc_PipelineInterface):
 
 		return sentences
 
-	def debug(self,text: str) -> str:
+	def debug(self,text:str,context:dict=None) -> str:
 		if not self.is_last_stage:
 			return "lemmatize = true"
 		return text

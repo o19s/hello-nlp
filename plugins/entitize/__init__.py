@@ -29,12 +29,12 @@ def extract_people(doc):
 
 class Plugin():
 
-    def analyze(self,doc:Doc)->list:
+    def analyze(self,doc:Doc,context:dict=None)->list:
         sentences = []
         people = extract_people(doc)
         return people
 
-    def debug(self,doc:Doc)->list:
+    def debug(self,doc:Doc,context:dict=None)->list:
         #return list(doc)
         return []
         

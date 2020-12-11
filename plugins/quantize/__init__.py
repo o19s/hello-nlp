@@ -38,11 +38,11 @@ def extract_vectors(doc:Doc) -> list:
 
 class Plugin():
 
-    def analyze(self,doc:Doc)->list:
+    def analyze(self,doc:Doc,context:dict=None)->list:
         vectors = extract_vectors(doc)
         return vectors
 
-    def debug(self,vectors:list)->list:
+    def debug(self,vectors:list,context:dict=None)->list:
         return vectors
         
     def __init__(self,metadata):

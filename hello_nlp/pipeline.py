@@ -35,7 +35,7 @@ def add_to_pipelines(plugin:dict):
 #------------------------------------------
 
 class Analyzer:
-    def analyze(self, text: str, debug:bool=False) -> str:
+    def analyze(self, text: str, context:dict=None, debug:bool=False) -> str:
         data = text
         data_debug = []
         total_time = 0
@@ -44,7 +44,7 @@ class Analyzer:
         for stage in self.stages:
             if debug:
                 startwatch = time()
-            data = stage.analyze(data)
+            data = stage.analyze(data, context=context)
             if debug:
                 stopwatch = time() - startwatch
                 total_time += stopwatch
@@ -65,8 +65,8 @@ class Analyzer:
 #------------------------------------------
 
 class Field:
-    def analyze(self,text: str, debug:bool=False) -> str:
-        data,data_debug = self.analyzer.analyze(text,debug=debug)
+    def analyze(self, text: str, context:dict=None, debug:bool=False) -> str:
+        data,data_debug = self.analyzer.analyze(text,context=context,debug=debug)
         return data,data_debug 
 
     def __init__(self,field:dict,analyzer:Analyzer):
@@ -77,8 +77,8 @@ class Field:
 #------------------------------------------
 
 class Query:
-    def analyze(self,text: str, debug:bool=False) -> str:
-        data,data_debug = self.analyzer.analyze(text,debug=debug)
+    def analyze(self,text: str, context:dict=None, debug:bool=False) -> str:
+        data,data_debug = self.analyzer.analyze(text,context=context,debug=debug)
         return data,data_debug 
 
     def __init__(self,query:dict,analyzer:Analyzer):
@@ -90,15 +90,15 @@ class Query:
 
 class Pipelines:    
 
-    def analyze(self, analyzer:str, text:str, debug:bool=False) -> str:
-        data,data_debug = self.analyzers[analyzer].analyze(text,debug=debug)
+    def analyze(self, analyzer:str, text:str, context:dict=None, debug:bool=False) -> str:
+        data,data_debug = self.analyzers[analyzer].analyze(text,context=context,debug=debug)
         return data,data_debug
 
     def enrich(self, document:dict, debug:bool=False) -> dict:
         for f in self.fields.keys():
             fields = self.fields[f]
             for field in fields:
-                data,data_debug = field.analyze(document[f],debug=debug)
+                data,data_debug = field.analyze(document[f],context=document,debug=debug)
                 document[field.target] = data
         return document
 
@@ -161,9 +161,12 @@ class Pipelines:
 
         return params
 
-    def elastic_query(self,obj,enrich=None):
+    def elastic_query(self,obj,root=None,enrich=None):
 
         keywords = {"query","match","match_phrase","match_all","should","must","should_not","must_not","filter","bool","term","terms","script_score","params","script","rescore","rescore_query","function_score"}
+
+        if not root:
+            root = obj
 
         if isinstance(obj,dict):
 
@@ -174,7 +177,7 @@ class Pipelines:
                     name = obj[key]["name"]
                     value = obj[key]["value"]
                     analyzer = obj[key]["analyzer"]
-                    analyzed = self.analyzers[analyzer].analyze(value,debug=False)
+                    analyzed = self.analyzers[analyzer].analyze(value,context={"root":root,"node":obj},debug=False)
                     return {name:analyzed[0]}
 
                 elif (key in self.queryfields):
@@ -185,7 +188,7 @@ class Pipelines:
                         obj[key] = str(data)
                     else:
                         #print('RECURSE A')
-                        obj[key] = self.elastic_query(obj[key],enrich=key)
+                        obj[key] = self.elastic_query(obj[key],root=root,enrich=key)
 
                 elif key in keywords:
                     #print('KEYWORD')
@@ -193,11 +196,11 @@ class Pipelines:
                         #print(obj[key])
                         if isinstance(enrich,str):
                             #print('ANALYZE B')
-                            data,_ = self.query_analyzer.analyze(obj[key],debug=False)
+                            data,_ = self.query_analyzer.analyze(obj[key],context={"root":root,"node":obj},debug=False)
                             obj[key] = str(data)
                     else:
                         #print('RECURSE B')
-                        obj[key] = self.elastic_query(obj[key],enrich=enrich)
+                        obj[key] = self.elastic_query(obj[key],root=root,enrich=enrich)
 
         elif isinstance(obj,list):
             for i in range(len(obj)-1):
@@ -209,21 +212,11 @@ class Pipelines:
                         obj[i] = str(data)
                 else:
                     #print('RECURSE C')
-                    obj[i] = self.elastic_query(obj[i],enrich=enrich)
+                    obj[i] = self.elastic_query(obj[i],root=root,enrich=enrich)
 
         #print('DONE')
         #print(json.dumps(obj,indent=2))
         return obj
-
-    """
-    def query(self,params:dict) -> dict:
-        for f in self.queries.keys():
-            queries = self.queries[f]
-            for query in queries:
-                data,data_debug = query.analyze(params[f],debug=debug)
-                params[query.target] = data
-        return params
-    """
 
     def add_analyzer(self, analyzer:dict):
         self.analyzers[analyzer["name"]] = Analyzer(analyzer["pipeline"],self.nlp)
