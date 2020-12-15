@@ -1,7 +1,6 @@
 import os
 import json
 import urllib 
-
 from typing import List, Optional
 
 from fastapi import Depends, FastAPI, Request, Response
@@ -10,6 +9,17 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse, JSONResponse
 
 from pydantic import BaseModel
+
+app = FastAPI()
+
+app.mount("/ui/", StaticFiles(directory="ui"), name="ui")
+
+if os.environ["CUDA"] in ['true','cuda','True']:
+    os.environ["CUDA"]="true"
+    print("I will attempt to enable CUDA.")
+else:
+    os.environ["CUDA"]="false"
+    print("CUDA is disabled. To enable it set CUDA=true in your *.conf file.")
 
 from .auth import basic_auth
 from .elastic import executor as elastic_executor
@@ -20,9 +30,8 @@ from .pipeline import Pipelines
 
 from .storage import saveDocument,indexableDocuments
 
-app = FastAPI()
 
-app.mount("/ui/", StaticFiles(directory="ui"), name="ui")
+
 
 with open('config.json','r') as fd:
     config_json = json.load(fd)

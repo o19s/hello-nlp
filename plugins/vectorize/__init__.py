@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from spacy.tokens import Doc
 from sentence_transformers import SentenceTransformer
@@ -32,4 +33,11 @@ class Plugin():
         self.pipeline = metadata
         self.pipeline[self.name] = True
         self.index = None
-        self.model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
+
+        self.cuda=os.environ["CUDA"]
+        self.device='cpu'
+        if self.cuda=='true':
+            self.device='cuda'
+
+        #To use CUDA on your system/container, set CUDA=true in /hello-nlp/config.json
+        self.model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens',device=self.device)
