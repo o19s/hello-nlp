@@ -10,16 +10,6 @@ from fastapi.responses import RedirectResponse, JSONResponse
 
 from pydantic import BaseModel
 
-from .auth import basic_auth
-from .elastic import executor as elastic_executor
-from .solr import executor as solr_executor
-
-from .skipchunkconnect import Connect
-from .pipeline import Pipelines
-
-from .storage import saveDocument,indexableDocuments
-
-
 app = FastAPI()
 
 app.mount("/ui/", StaticFiles(directory="ui"), name="ui")
@@ -30,6 +20,18 @@ if os.environ["CUDA"] in ['true','cuda','True']:
 else:
     os.environ["CUDA"]="false"
     print("CUDA is disabled. To enable it set CUDA=true in your *.conf file.")
+
+from .auth import basic_auth
+from .elastic import executor as elastic_executor
+from .solr import executor as solr_executor
+
+from .skipchunkconnect import Connect
+from .pipeline import Pipelines
+
+from .storage import saveDocument,indexableDocuments
+
+
+
 
 with open('config.json','r') as fd:
     config_json = json.load(fd)

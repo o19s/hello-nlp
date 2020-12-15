@@ -40,4 +40,4 @@ class Plugin():
             self.device='cuda'
 
         #To use CUDA on your system/container, set CUDA=true in /hello-nlp/config.json
-        self.model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens',device=self.device)
+        self.model = SentenceTransformer('https://sbert.net/models/distilbert-base-nli-stsb-mean-tokens.zip',device=self.device)
