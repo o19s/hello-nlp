@@ -16,4 +16,4 @@ bs4==0.0.1
 lxml==4.5.2
 httpx==0.15.4
 sentence-transformers==0.3.8
-skipchunk>=0.9.10
+skipchunk>=1.3.2

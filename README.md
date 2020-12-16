@@ -20,6 +20,8 @@ Check your configs
 - docker-solr.conf
 - docker-elasticsearch.conf
 
+Make sure your spacy model in the docker install matches the same model that you use in the pipeline configuration below!)
+
 Then build and run the container (will take a little while):
 
 #### Solr
@@ -43,7 +45,7 @@ When running, you can then access the Admin UI and API docs at http://localhost:
 
 ### Manual Installation
 
-Install the dependencies
+Install the dependencies (make sure you download the same model that you use in the pipeline configuration below!)
 
 ```bash
 pip install -r requirements.txt
@@ -53,8 +55,8 @@ python -m nltk.downloader wordnet
 
 Check your configs
 - config.json
-- docker-solr.conf
-- docker-elasticsearch.conf
+- solr.conf
+- elasticsearch.conf
 
 Then start either ```./run-solr.sh``` or ```./run-elastic.sh```
 
@@ -121,8 +123,6 @@ q=shirt
 ```
 
 ### Elasticsearch Support
-
-_coming soon_
 
 Just like a regular Elastic QueryDSL request, pass the query json as a body to ```POST /elastic/{index_name}```
 
