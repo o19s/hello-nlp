@@ -45,7 +45,8 @@ skipchunk = Connect(
     os.environ["APP_NAME"],
     os.environ["ENGINE_NAME"],
     os.environ["DOCUMENTS_PATH"],
-    config_json["model"])
+    config_json["model"],
+    config_json["skipchunk"])
 
 if os.environ["ENGINE_NAME"] in ["solr"]:
     executor = solr_executor
@@ -172,7 +173,6 @@ async def enrich_document(index_name:str, document: IndexableDocument) -> dict:
         enriched = pipelines.enrich(doc)
         idfield = config_json["id"]
         docid = doc[idfield]
-        iq = skipchunk.index_connect
         saveDocument(docid,enriched,os.environ["DOCUMENTS_PATH"])
         res = enriched
     except ValueError as e:
@@ -191,6 +191,7 @@ async def index_document(index_name:str, document: IndexableDocument) -> dict:
         iq = skipchunk.index_connect(index_name)
         iq.indexDocument(enriched)
         saveDocument(docid,enriched,iq.engine.document_data)
+        skipchunk.extract_one(index_name,doc)
         res = enriched
     except ValueError as e:
         print(e)
@@ -213,6 +214,7 @@ async def bulk_index_documents(index_name:str, document: IndexableDocuments) -> 
             enriched.append(analyzed)
             saveDocument(docid,analyzed,iq.engine.document_data)
         iq.indexGenerator(enriched)
+        skipchunk.extract_batch(index_name,docs)
         res = {"success":True,"total":len(enriched)}
     except ValueError as e:
         print(e)
