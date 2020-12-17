@@ -186,6 +186,8 @@ Attaches weights to parts-of-speech and entities, that will be expressed as deli
 
 It's easy to configure and use an analysis pipeline!  If you've ever written one in Solr or Elasticsearch, you can pick it up in no time.
 
+We're going to show you a whole pipeline, which must always located in [conf.json](conf.json), and then walk you through the parts.
+
 ```json
 {
     "id": "id",
@@ -223,9 +225,22 @@ It's easy to configure and use an analysis pipeline!  If you've ever written one
                 "tokenize",
                 "prepositionize"
             ]
+        },
+        {
+            "name":"vectorizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "vectorize"
+            ]
         }
     ],
     "fields": [
+        {
+            "source":"title",
+            "target":"title_txt",
+            "analyzer":"lemmatizer"
+        },
         {
             "source":"title",
             "target":"title_payloads",
@@ -240,19 +255,60 @@ It's easy to configure and use an analysis pipeline!  If you've ever written one
             "source":"content",
             "target":"people_ss",
             "analyzer":"entitizer"
-        }        
-    ],
-    "query": [
+        },
         {
-            "source":"q",
-            "target":"q",
-            "analyzer":"lemmatizer"
+            "source":"title",
+            "target":"title_vector",
+            "analyzer":"vectorizer"
         }
-    ]
+    ],
+    "skipchunk": {
+        "fields":["title","content"],
+        "minconceptlength":1,
+        "maxconceptlength":3,
+        "minpredicatelength":1,
+        "maxpredicatelength":3,
+        "minlabels":1,
+        "cache_documents":false,
+        "cache_pickle":false
+    }
 }
 ```
 
-## Plugins
+### How the Pipeline works:
+
+
+__Your CMS__ ```--(raw-documents)-->``` __Hello-NLP__ ```--(enriched-documents)-->``` __Solr/Elasticsearch__
+
+
+You send content to Hello-NLP the same way you send it to your search engine.  You provide documents, and those documents contain fields.  Those fields are parsed and changed in an analyzer, based on the type of the field, and then sent into the search engine.  You can also copy fields to a new field with its own type, so you can analyze the same field in different ways.
+
+Let's use a simple example: *Lemmatization*.  You have a title field that you want to Lemmatize (normalize to the root form of the words) so that words like 'cars' will be normalized as 'car', and searching for either will match the title.
+
+For example, a title may contain entities that you want to extract, so you can copy the title to a new field *"title_ss"* (where ```_ss``` will be indexed as a dynamic multivalued string field).  Then you specify that the field has the analyzer *"entitize"*.
+
+
+### Analyzers and Plugins
+
+```json
+{    
+    ...
+    "analyzers": [
+        {
+            "name":"payloader",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "payload"
+            ]
+        },...
+    ]
+    ...
+}
+```
+
+
+_TL;DR;_ *Go to the plugins folder, copy one of the plugin folders, give it a good name, and tweak its __init__.py file!  Then reference it in your pipeline analyzers, fields, and queries*
 
 While Hello-NLP offers core analyzers out of the box, there are lots of things you might want to do to meet your own search use cases.  Plugins are the same thing as analyzers, but you write and maintain them yourself.
 
