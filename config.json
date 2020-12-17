@@ -47,6 +47,11 @@
     "fields": [
         {
             "source":"title",
+            "target":"title_txt",
+            "analyzer":"lemmatizer"
+        },
+        {
+            "source":"title",
             "target":"title_payloads",
             "analyzer":"payloader"
         },
