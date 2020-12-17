@@ -1,0 +1,9 @@
+version: '3'
+services:
+    hello-nlp-elasticsearch:
+        build: .
+        environment:
+          - PORT=5055
+          - CONFIG_FILE=/app/docker-elasticsearch.conf
+        ports:
+          - "5055:5055"
