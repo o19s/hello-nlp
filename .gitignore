@@ -123,3 +123,4 @@ app/local_settings.py
 \~$*.pptx
 
 data/**/*.json
+data/

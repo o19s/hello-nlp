@@ -1,14 +1,22 @@
+from skipchunk.skipchunk import Skipchunk, textFromFields
 from skipchunk.graphquery import GraphQuery
 from skipchunk.indexquery import IndexQuery
 from skipchunk.enrichquery import EnrichQuery
 
+def tuplize(data,fields=[],strip_html=True):
+    tuples = []
+    for post in data:
+        text = textFromFields(post,fields,strip_html=strip_html)
+        tuples.append((text,post))
+    return tuples
+
 class Connect:
 
-    def __init__(self,use_ssl,host,port,index,engine_name,path,model):
+    def __init__(self,use_ssl,host,port,index,engine_name,path,model,settings):
 
         uri = ""
 
-        if use_ssl in ["True","true",1,"1",True]:
+        if use_ssl in ["True","true",True,1,"1"]:
             uri += 'https://'
         else:
             uri += 'http://'
@@ -24,10 +32,14 @@ class Connect:
             "engine_name":engine_name,
             "path":path,
             "model":model
-
         }
 
         self.uri = uri
+
+        self.fields = settings.pop("fields")
+
+        self.sc = Skipchunk(self.config,spacy_model=model,**settings)
+        print("But no need to worry, Hello-NLP is saving your stuff.")
 
         self.eq = EnrichQuery(model=model)
         self.iq = IndexQuery(self.config,enrich_query=self.eq)
@@ -49,3 +61,15 @@ class Connect:
             index_config["name"] = name
             self.index_connections[name] = IndexQuery(index_config,enrich_query=self.eq)
         return self.index_connections[name]
+
+    def extract_one(self,name,doc):
+        tuples = tuplize([doc],fields=self.fields)
+        self.sc.enrich(tuples)
+        gq = self.graph_connect(name)
+        gq.index(self.sc)
+
+    def extract_batch(self,name,docs):
+        tuples = tuplize(docs,fields=self.fields)
+        self.sc.enrich(tuples)
+        gq = self.graph_connect(name)
+        gq.index(self.sc)
