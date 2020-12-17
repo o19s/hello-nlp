@@ -12,4 +12,4 @@ COPY . .
 ENV PYTHONPATH=/app
 EXPOSE 5055
 
-CMD ["uvicorn","hello_nlp.main:app","--host","0.0.0.0","--port","5055","--use-colors","--access-log","--env-file","/app/docker-elasticsearch.conf"]
+CMD uvicorn hello_nlp.main:app --host 0.0.0.0 --port $PORT --use-colors --access-log --env-file $CONFIG_FILE

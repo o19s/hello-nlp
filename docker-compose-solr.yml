@@ -1,0 +1,9 @@
+version: '3'
+services:
+    hello-nlp-solr:
+        build: .
+        environment:
+          - PORT=5050
+          - CONFIG_FILE=/app/docker-solr.conf
+        ports:
+          - "5050:5050"
