@@ -30,10 +30,8 @@ from .pipeline import Pipelines
 
 from .storage import saveDocument,indexableDocuments
 
-
-
-
-with open('config.json','r') as fd:
+pipeline_filename = os.environ["PIPELINE"]
+with open(pipeline_filename,'r') as fd:
     config_json = json.load(fd)
 
 pipelines = Pipelines(config_json)

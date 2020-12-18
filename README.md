@@ -12,33 +12,51 @@ Also, since the NLP community (mostly) uses Python, it brings Python extensibili
 
 Clone this repo!  Then Install via either Docker or Manually
 
-### Docker
 
-Check your configs
-- config.json
-- docker-solr.conf
-- docker-elasticsearch.conf
+### Docker for Solr
 
-Make sure your spacy model in the docker install matches the same model that you use in the pipeline configuration below!)
+Open your configuration file ```docker-solr.conf```, and configure your connectivity to your running Solr endpoint.
 
-Then build and run the container (will take a little while):
+Then build and run the container (will take a little while the first time, but starts up more quickly afterwards):
 
-#### Solr
 ```bash
 ./docker-solr.sh
 ```
-_ignore the nltk downloader and pip warnings - it's fine!_
 
-When running, you can then access the Admin UI and API docs at http://localhost:5050
+You'll know when it finished running when you see the following:
 
-#### Elasticsearch
+```bash
+"hello-nlp-solr_1  | INFO:uvicorn.error:Uvicorn running on http://0.0.0.0:5050 (Press CTRL+C to quit)"
+```
+
+Now run the example ```example/solr-index-bulk.sh``` script files to index example content (this will take a little while)!
+
+You can then access the Admin UI and API docs at http://localhost:5050 ...check that out and browse around a little while.
+
+Now, open the ```pipeline-solr.json``` file.  This is your pipeline, we will explain how this all works next.
+
+
+### Docker for Elasticsearch
+
+Open your configuration file ```docker-elasticsearch.conf```, and configure to connectivity to your running __Elasticsearch__ cluster.
+
+Then build and run the container (will take a little while the first time, but starts up more quickly afterwards):
+
 ```bash
 ./docker-elasticsearch.sh
 ```
 
-_ignore the nltk downloader and pip warnings - it's fine!_
+You'll know when it finished running when you see the following:
 
-When running, you can then access the Admin UI and API docs at http://localhost:5055 
+```bash
+"hello-nlp-elasticsearch_1  | INFO:uvicorn.error:Uvicorn running on http://0.0.0.0:5055 (Press CTRL+C to quit)"
+```
+
+Now run the example ```example/elastic-index-bulk.sh``` script files to index example content (this will take a little while)!
+
+You can then access the Admin UI and API docs at http://localhost:5055 ...check that out and browse around a little while.
+
+Now, open the ```pipeline-elasticsearch.json``` file.  This is your pipeline, we will explain how this all works next.
 
 ### Manual Installation
 
@@ -52,134 +70,19 @@ python -m nltk.downloader wordnet
 
 Check your configs
 - config.json
-- solr.conf
-- elasticsearch.conf
+- solr.conf (if you're using Solr)
+- elasticsearch.conf (if you're using Elasticsearch)
 
 Then start either ```./run-solr.sh``` or ```./run-elasticsearch.sh```
 
-## Graph API
+Now run the example ```example/solr-index-bulk.sh``` or ```example/elasticsearch-index-bulk.sh``` script files to index the blog example!
 
-### GET /graph/{index_name}?query={query}
+You can then access the Admin UI and API docs at http://localhost:5055 ...check that out and browse around a little while.
 
-Gets the subject-predicate-object relationship graph for the subject ```{query}```
+Now, open the ```pipeline-solr.json``` or ```pipeline-elasticsearch.json``` file.  This is your pipeline, we will explain how this all works next.
 
-### GET /suggest/{index_name}?query={query}
 
-Suggests noun phrases and verb phrases for autocomplete for the prefix ```{query}```
-
-### GET /indexes/{index_name}
-
-Gets the top 100 noun and verb phrases from your graph
-
-## Content API
-
-### GET /indexes
-
-Gets the list of indexes on your Solr or Elasticsearch cluster
-
-### GET /analyze/{analyzer}
-
-Analyzes the provided body text in the request with the given ```{analyzer}``` and returns the analyzed output
-
-### POST /enrich/
-
-Analyzes a document and its fields according to the configured pipelines and returns the enriched document.  It also saves the enriched document on the service disc for easy reindexing.
-
-### POST /index/
-
-Analyzes a document and its fields according to the configured pipelines, returns the enriched document, and sends the enriched document to your Solr or Elasticsearch cluster.  It also saves the enriched document on the service disc for easy reindexing.
-
-### POST /reindex/
-
-Re-sends all your enriched documents from the Hello-NLP disc to your Solr or Elasticsearch cluster.  This does not re-enrich the documents!
-
-## Query Enrichment API
-
-Hello-NLP's Query API exposes python NLP enrichment and query rewriting to your existing query parser
-
-### Motivations
-
-Query enrichment and intent detection should be easier.  You can quickly write your own intent workflows using spaCy, Duckling, regex, or custom business rules in a Python script that you own and control, and then dynamically reference them at querytime.
-
-### Solr Support
-
-Just like a regular Solr request but pointed at Hello-NLP, pass your Solr querystrings into ```GET /solr/{index_name}?q=...```
-
-Here's an example of removing negative prepositions using a simple querywriter, inlined as a Solr subquery:
-
-```
-q=shirt without stripes
-&fq={!hello_nlp f=-style:$v v=$q analyzer=prepositionizer}
-```
-
-Will expand to:
-
-```
-q=shirt
-&fq=-style:stripe
-```
-
-### Elasticsearch Support
-
-Just like a regular Elastic QueryDSL request, pass the query json as a body to ```POST /elastic/{index_name}```
-
-## Autocomplete
-
-Hello-NLP exposes https://github.com/o19s/skipchunk graphs as an autocomplete service and graph exploration tool.  Browse noun phrases with ease and see which concepts appear together in sentences and documents.
-
-## Analyzers
-
-- html_strip (via bs4 and lxml)
-- knowledge graph extraction (via skipchunk)
-- coreference resolution (via neuralcoref) _(coming soon!)_
-- tokenization (via spaCy)
-- entity extraction (via spaCy) _(coming soon!)_
-- lemmatization (via spaCy)
-- semantic payloading (via spaCy)
-
-### html_strip 
-
-Removes HTML and XML tags from text, using well supported parsers like lxml or beautifulsoup4
-
-### coreference resolution 
-
-_(coming soon!)_
-
-Uses neuralcoref for in-place rewriting of pronouns with their nouns.
-
-### knowledge graph extraction 
-
-Uses Skipchunk to extract a vocabulary and latent knowledge graph to be used as a read-to-go autocomplete
-
-### patternization 
-
-_(coming soon!)_
-
-Uses Duckling to identify loosely structured value entities and replaces them with canonical forms
-
-### tokenization 
-
-Uses SpaCy to tokenize and tag text that can be used later in the analysis chain
-
-### entity extraction
-
-Copies text-embedded entities of specific classes to other fields, for faceting and filtering.  Currently offered as an example plugin.
-
-### vectorization
-
-_(coming soon!)_
-
-Uses huggingface models to get transformer embeddings and copy them into a vector field for nearest-neighbor search, fine-tuning, and other tasks.
-
-### lemmatization 
-
-Lemmatizes Nouns and Verbs to their root form, as a more precise alternative to stemming
-
-### semantic payloading 
-
-Attaches weights to parts-of-speech and entities, that will be expressed as delimited payloads for Lucene.
-
-## Pipeline
+## Your New Enrichment Pipeline
 
 It's easy to configure and use an analysis pipeline!  If you've ever written one in Solr or Elasticsearch, you can pick it up in no time.
 
@@ -324,7 +227,128 @@ With the analyzer configured, now you can use it when processing fields.  Follow
 With the above entries in your pipeline, when indexing a document, the title field will be copied to a new field title_txt, and that copy will be processed by the lemmatizer analyzer.
 
 
-### Making Your Own Analyzers
+## Graph API
+
+### GET /graph/{index_name}?query={query}
+
+Gets the subject-predicate-object relationship graph for the subject ```{query}```
+
+### GET /suggest/{index_name}?query={query}
+
+Suggests noun phrases and verb phrases for autocomplete for the prefix ```{query}```
+
+### GET /indexes/{index_name}
+
+Gets the top 100 noun and verb phrases from your graph
+
+## Content API
+
+### GET /indexes
+
+Gets the list of indexes on your Solr or Elasticsearch cluster
+
+### GET /analyze/{analyzer}
+
+Analyzes the provided body text in the request with the given ```{analyzer}``` and returns the analyzed output
+
+### POST /enrich/
+
+Analyzes a document and its fields according to the configured pipelines and returns the enriched document.  It also saves the enriched document on the service disc for easy reindexing.
+
+### POST /index/
+
+Analyzes a document and its fields according to the configured pipelines, returns the enriched document, and sends the enriched document to your Solr or Elasticsearch cluster.  It also saves the enriched document on the service disc for easy reindexing.
+
+### POST /reindex/
+
+Re-sends all your enriched documents from the Hello-NLP disc to your Solr or Elasticsearch cluster.  This does not re-enrich the documents!
+
+## Query Enrichment API
+
+Hello-NLP's Query API exposes python NLP enrichment and query rewriting to your existing query parser
+
+### Motivations
+
+Query enrichment and intent detection should be easier.  You can quickly write your own intent workflows using spaCy, Duckling, regex, or custom business rules in a Python script that you own and control, and then dynamically reference them at querytime.
+
+### Solr Support
+
+Just like a regular Solr request but pointed at Hello-NLP, pass your Solr querystrings into ```GET /solr/{index_name}?q=...```
+
+Here's an example of removing negative prepositions using a simple querywriter, inlined as a Solr subquery:
+
+```
+q=shirt without stripes
+&fq={!hello_nlp f=-style:$v v=$q analyzer=prepositionizer}
+```
+
+Will expand to:
+
+```
+q=shirt
+&fq=-style:stripe
+```
+
+### Elasticsearch Support
+
+Just like a regular Elastic QueryDSL request, pass the query json as a body to ```POST /elastic/{index_name}```
+
+## Autocomplete
+
+Hello-NLP exposes https://github.com/o19s/skipchunk graphs as an autocomplete service and graph exploration tool.  Browse noun phrases with ease and see which concepts appear together in sentences and documents.
+
+## Analyzers
+
+- html_strip (via bs4 and lxml)
+- knowledge graph extraction (via skipchunk)
+- coreference resolution (via neuralcoref) _(coming soon!)_
+- tokenization (via spaCy)
+- entity extraction (via spaCy) _(coming soon!)_
+- lemmatization (via spaCy)
+- semantic payloading (via spaCy)
+
+### html_strip 
+
+Removes HTML and XML tags from text, using well supported parsers like lxml or beautifulsoup4
+
+### coreference resolution 
+
+_(coming soon!)_
+
+Uses neuralcoref for in-place rewriting of pronouns with their nouns.
+
+### knowledge graph extraction 
+
+Uses Skipchunk to extract a vocabulary and latent knowledge graph to be used as a read-to-go autocomplete
+
+### patternization 
+
+_(coming soon!)_
+
+Uses Duckling to identify loosely structured value entities and replaces them with canonical forms
+
+### tokenization 
+
+Uses SpaCy to tokenize and tag text that can be used later in the analysis chain
+
+### entity extraction
+
+Copies text-embedded entities of specific classes to other fields, for faceting and filtering.  Currently offered as an example plugin.
+
+### vectorization
+
+Uses https://sbert.net/ to get transformer embeddings and copy them into a vector field for nearest-neighbor search, fine-tuning, and other tasks.
+
+### lemmatization 
+
+Lemmatizes Nouns and Verbs to their root form, as a more precise alternative to stemming
+
+### semantic payloading 
+
+Attaches weights to parts-of-speech and entities, that will be expressed as delimited payloads for Lucene.
+
+
+## Making Your Own Analyzers
 
 _TL;DR;_ *Go to the plugins folder, copy one of the plugin folders, give it a good name, and tweak its __init__.py file!  Then reference it in your pipeline analyzers, fields, and queries*
 

@@ -1,0 +1,96 @@
+{
+    "id": "id",
+    "model": "en_core_web_lg",
+    "plugin_path": "./plugins",
+    "analyzers": [
+        {
+            "name":"payloader",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "payload"
+            ]
+        },
+        {
+            "name":"entitizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "entitize"
+            ]
+        },
+        {
+            "name":"lemmatizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "lemmatize"
+            ]
+        },
+        {
+            "name":"prepositionizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "prepositionize"
+            ]
+        },
+        {
+            "name":"vectorizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "vectorize"
+            ]
+        }
+    ],
+    "fields": [
+        {
+            "source":"title",
+            "target":"title_txt",
+            "analyzer":"lemmatizer"
+        },
+        {
+            "source":"content",
+            "target":"content_txt",
+            "analyzer":"lemmatizer"
+        },
+        {
+            "source":"title",
+            "target":"title_payloads",
+            "analyzer":"payloader"
+        },
+        {
+            "source":"content",
+            "target":"content_payloads",
+            "analyzer":"payloader"
+        },
+        {
+            "source":"content",
+            "target":"people_ss",
+            "analyzer":"entitizer"
+        },
+        {
+            "source":"title",
+            "target":"title_vector",
+            "analyzer":"vectorizer"
+        }
+    ],
+    "skipchunk": {
+        "fields":["title","content"],
+        "minconceptlength":1,
+        "maxconceptlength":3,
+        "minpredicatelength":1,
+        "maxpredicatelength":3,
+        "minlabels":1,
+        "cache_documents":false,
+        "cache_pickle":false
+    },
+    "query": [
+        {
+            "source":"q",
+            "target":"q",
+            "analyzer":"lemmatizer"
+        }
+    ]
+}

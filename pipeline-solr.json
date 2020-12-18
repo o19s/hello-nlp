@@ -1,0 +1,60 @@
+{
+    "id": "id",
+    "model": "en_core_web_lg",
+    "plugin_path": "./plugins",
+    "analyzers": [
+        {
+            "name":"payloader",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "payload"
+            ]
+        },
+        {
+            "name":"lemmatizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "lemmatize"
+            ]
+        },
+        {
+            "name":"prepositionizer",
+            "pipeline":[
+                "html_strip",
+                "tokenize",
+                "prepositionize"
+            ]
+        }
+    ],
+    "fields": [
+        {
+            "source":"title",
+            "target":"title_payloads",
+            "analyzer":"payloader"
+        },
+        {
+            "source":"content",
+            "target":"content_payloads",
+            "analyzer":"payloader"
+        }
+    ],
+    "skipchunk": {
+        "fields":["title","content"],
+        "minconceptlength":1,
+        "maxconceptlength":3,
+        "minpredicatelength":1,
+        "maxpredicatelength":3,
+        "minlabels":1,
+        "cache_documents":false,
+        "cache_pickle":false
+    },
+    "query": [
+        {
+            "source":"q",
+            "target":"q",
+            "analyzer":"lemmatizer"
+        }
+    ]
+}
