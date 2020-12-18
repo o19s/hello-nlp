@@ -29,7 +29,7 @@ You'll know when it finished running when you see the following:
 "hello-nlp-solr_1  | INFO:uvicorn.error:Uvicorn running on http://0.0.0.0:5050 (Press CTRL+C to quit)"
 ```
 
-Now run the example ```example/index-one.sh``` script files to index a document!
+Now run the example ```example/solr-index-bulk.sh``` script files to index example content (this will take a little while)!
 
 You can then access the Admin UI and API docs at http://localhost:5050 ...check that out and browse around a little while.
 
@@ -52,7 +52,7 @@ You'll know when it finished running when you see the following:
 "hello-nlp-elasticsearch_1  | INFO:uvicorn.error:Uvicorn running on http://0.0.0.0:5055 (Press CTRL+C to quit)"
 ```
 
-Now run the example ```example/index-one.sh``` script files to index a document!
+Now run the example ```example/elastic-index-bulk.sh``` script files to index example content (this will take a little while)!
 
 You can then access the Admin UI and API docs at http://localhost:5055 ...check that out and browse around a little while.
 
@@ -75,7 +75,7 @@ Check your configs
 
 Then start either ```./run-solr.sh``` or ```./run-elasticsearch.sh```
 
-Now run the example ```example/solr-index-one.sh``` or ```example/elasticsearch-index-one.sh``` script files to index a document!
+Now run the example ```example/solr-index-bulk.sh``` or ```example/elasticsearch-index-bulk.sh``` script files to index the blog example!
 
 You can then access the Admin UI and API docs at http://localhost:5055 ...check that out and browse around a little while.
 
